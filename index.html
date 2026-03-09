@@ -1,152 +1,1778 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoInvest | Carbon Market Demo</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Climfra | Carbon ESG Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--bg:#050A07;--card:rgba(15,24,17,.8);--border:rgba(255,255,255,.07);
+--accent:#22c55e;--glow:rgba(34,197,94,.2);
+--warn:#f59e0b;--red:#ef4444;--blue:#38bdf8;--purple:#a78bfa;
+--text:#f0fdf4;--dim:#6b7280;--glass:rgba(255,255,255,.03);
+--rx:24px;--rl:16px;--rm:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;
+background-image:radial-gradient(ellipse at 8% 8%,rgba(34,197,94,.12) 0%,transparent 52%),
+radial-gradient(ellipse at 92% 92%,rgba(22,163,74,.09) 0%,transparent 52%)}
+
+/* ── SCREENS & PAGES ── */
+.screen{position:absolute;inset:0;display:none;flex-direction:column;opacity:0;transition:opacity .3s}
+.screen.on{display:flex;opacity:1}
+.page{display:none}.page.on{display:block}
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:106px;-webkit-overflow-scrolling:touch}
+.scroll::-webkit-scrollbar{display:none}
+
+/* ── CARD SYSTEM ── */
+.card{background:var(–card);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+border:1px solid var(–border);border-radius:var(–rx);padding:18px}
+.card-g{border-color:rgba(34,197,94,.25);background:linear-gradient(145deg,rgba(34,197,94,.08),transparent)}
+.card-y{border-color:rgba(250,204,21,.18);background:linear-gradient(145deg,rgba(250,204,21,.05),transparent)}
+.card-p{border-color:rgba(139,92,246,.2);background:linear-gradient(145deg,rgba(139,92,246,.06),transparent)}
+.card-r{border-color:rgba(56,189,248,.2);background:linear-gradient(145deg,rgba(56,189,248,.06),transparent)}
+.reward-card{background:linear-gradient(135deg,rgba(34,197,94,.13),rgba(22,163,74,.04));
+border:1px solid rgba(34,197,94,.22);border-radius:var(–rx);padding:20px;position:relative;overflow:hidden}
+.reward-card::before{content:’’;position:absolute;top:-36px;right:-36px;width:130px;height:130px;
+border-radius:50%;background:radial-gradient(circle,rgba(34,197,94,.13),transparent 70%)}
+
+/* ── TYPOGRAPHY & INPUTS ── */
+.lbl{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(–dim);text-transform:uppercase;margin-bottom:5px;display:block}
+.inp{width:100%;background:rgba(255,255,255,.04);border:1px solid var(–border);border-radius:var(–rm);
+padding:12px 14px;color:var(–text);font-size:14px;font-family:‘Outfit’,sans-serif;outline:none;transition:all .2s}
+.inp:focus{border-color:var(–accent);background:rgba(34,197,94,.04);box-shadow:0 0 0 3px var(–glow)}
+.inp::placeholder{color:var(–dim)}
+select.inp{cursor:pointer}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+padding:12px 20px;border-radius:var(–rl);font-family:‘Outfit’,sans-serif;
+font-size:14px;font-weight:700;border:none;cursor:pointer;transition:all .18s}
+.btn:active{transform:scale(.97)}
+.btn-p{background:var(–accent);color:#000}
+.btn-g{background:var(–glass);border:1px solid var(–border);color:var(–text)}
+.btn-g:hover{border-color:var(–accent);color:var(–accent)}
+.btn-w{width:100%}
+.btn-shimmer{background:linear-gradient(90deg,var(–accent),#4ade80,var(–accent));
+background-size:200%;animation:shimmer 2s linear infinite;color:#000}
+
+/* ── NAV ── */
+.nav-dock{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+background:rgba(6,14,9,.92);backdrop-filter:blur(24px);
+border:1px solid var(–border);padding:4px;border-radius:40px;
+display:flex;gap:2px;z-index:200;box-shadow:0 8px 32px rgba(0,0,0,.6)}
+.nav-item{padding:9px 13px;border-radius:32px;color:var(–dim);
+display:flex;align-items:center;gap:5px;font-weight:700;font-size:11px;
+cursor:pointer;transition:all .2s;white-space:nowrap;
+border:none;background:transparent;font-family:‘Outfit’,sans-serif}
+.nav-item.on{background:var(–accent);color:#000}
+
+/* ── PILLS & BADGES ── */
+.pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;
+font-family:‘JetBrains Mono’;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.pill-g{background:rgba(34,197,94,.14);color:#22c55e}
+.pill-y{background:rgba(245,158,11,.14);color:#f59e0b}
+.pill-r{background:rgba(239,68,68,.14);color:#ef4444}
+.pill-b{background:rgba(56,189,248,.14);color:#38bdf8}
+.pill-p{background:rgba(139,92,246,.14);color:#a78bfa}
+.badge{font-size:8px;padding:2px 6px;border-radius:5px;font-weight:700;letter-spacing:.06em}
+
+/* ── BENTO ── */
+.bento{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:12px}
+.s2{grid-column:span 2}
+
+/* ── SCORE RING ── */
+.score-ring{position:relative;width:120px;height:120px;margin:0 auto}
+.score-ring svg{transform:rotate(-90deg);filter:drop-shadow(0 0 10px var(–glow))}
+.score-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+
+/* ── OTP ── */
+.otp-wrap{display:flex;gap:7px;justify-content:center;margin:14px 0}
+.otp-d{width:44px;height:54px;text-align:center;background:rgba(255,255,255,.04);
+border:1px solid var(–border);border-radius:var(–rm);color:var(–text);
+font-size:22px;font-weight:700;font-family:‘JetBrains Mono’;outline:none;transition:all .2s}
+.otp-d:focus{border-color:var(–accent);box-shadow:0 0 0 3px var(–glow)}
+
+/* ── MODALS ── */
+.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);
+z-index:500;display:none;align-items:flex-end;justify-content:center}
+.backdrop.on{display:flex}
+.modal{width:100%;max-width:480px;background:#0a1510;border:1px solid var(–border);
+border-radius:var(–rx) var(–rx) 0 0;padding:20px;max-height:92vh;overflow-y:auto}
+.modal::-webkit-scrollbar{display:none}
+.handle{width:36px;height:4px;background:var(–border);border-radius:2px;margin:0 auto 16px}
+
+/* ── TOAST ── */
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-60px);
+background:#0d1810;border:1px solid var(–accent);border-radius:var(–rm);
+padding:10px 16px;font-size:13px;font-weight:600;z-index:999;
+transition:transform .3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;max-width:92vw;text-align:center}
+.toast.on{transform:translateX(-50%) translateY(0)}
+
+/* ── CAT TABS ── */
+.cat-tabs{display:flex;gap:6px;padding:0 12px 10px;overflow-x:auto}
+.cat-tabs::-webkit-scrollbar{display:none}
+.cat-tab{padding:6px 13px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;
+cursor:pointer;border:1px solid var(–border);background:var(–glass);color:var(–dim);transition:all .16s;flex-shrink:0}
+.cat-tab.on{background:var(–accent);color:#000;border-color:var(–accent)}
+
+/* ── TX ROW ── */
+.tx-row{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-bottom:1px solid var(–border)}
+.tx-icon{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.05);
+display:grid;place-items:center;font-size:16px;flex-shrink:0;margin-top:2px}
+
+/* ── UTILITY TABLE ── */
+.util-table{width:100%;border-collapse:collapse;min-width:360px;font-size:12px}
+.util-table th{text-align:right;padding:0 6px 8px;font-size:9px;color:var(–dim);
+font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.util-table th:first-child{text-align:left}
+.util-table td{padding:8px 6px;border-top:1px solid rgba(255,255,255,.04);vertical-align:middle}
+.util-table td:not(:first-child){text-align:right;font-family:‘JetBrains Mono’;font-size:11px}
+.util-table tbody tr:hover td{background:rgba(255,255,255,.02)}
+
+/* ── HEATMAP ── */
+.hmap-cell{aspect-ratio:1;border-radius:4px;cursor:pointer;transition:transform .12s}
+.hmap-cell:hover{transform:scale(1.4);z-index:2;position:relative}
+
+/* ── WITHDRAW OPTS ── */
+.w-opt{padding:13px;border-radius:var(–rl);border:2px solid var(–border);
+cursor:pointer;transition:all .16s;display:flex;align-items:center;gap:12px}
+.w-opt.sel,.w-opt:hover{border-color:var(–accent);background:rgba(34,197,94,.05)}
+
+/* ── BAG FEATURE ── */
+.bag-opt{border:2px solid var(–border);border-radius:var(–rl);padding:13px;
+cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:12px}
+.bag-opt.sel{border-color:var(–accent);background:rgba(34,197,94,.06)}
+.bag-zone{border:2px dashed rgba(34,197,94,.3);border-radius:var(–rx);
+padding:24px 16px;text-align:center;cursor:pointer;transition:all .22s;background:rgba(34,197,94,.02)}
+.bag-zone:hover,.bag-zone.drag{border-color:var(–accent);background:rgba(34,197,94,.07)}
+.bag-zone.done{border-style:solid;border-color:var(–accent);padding:8px}
+
+/* ── ANIMATIONS ── */
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes blink{0%,100%{opacity:.2;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+@keyframes bagWave{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg) translateY(-6px)}}
+@keyframes slideUp{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes confettiFall{0%{transform:translateY(-10px) rotate(0);opacity:1}100%{transform:translateY(110px) rotate(720deg);opacity:0}}
+.float{animation:float 5s ease-in-out infinite}
+.bag-wave{animation:bagWave 1.3s ease-in-out infinite;display:inline-block;transform-origin:bottom center}
+.ai-dot{width:8px;height:8px;border-radius:50%;background:var(–accent)}
+.ai-dot:nth-child(1){animation:blink 1.2s 0s infinite}
+.ai-dot:nth-child(2){animation:blink 1.2s .2s infinite}
+.ai-dot:nth-child(3){animation:blink 1.2s .4s infinite}
+.confetti-p{position:absolute;border-radius:2px;animation:confettiFall 1.1s ease-in forwards}
+
+/* ── SCROLLABLE NAV ── */
+.nav-dock{overflow-x:auto;max-width:96vw;padding:4px 6px}
+.nav-dock::-webkit-scrollbar{display:none}
+.nav-item{padding:8px 11px;font-size:10px}
+
+/* ── PRINT ── */
+@media print{
+.nav-dock,.app-header,button,.backdrop{display:none!important}
+body{background:#fff;color:#000}
+.card,.reward-card{background:#f9fafb;border:1px solid #e5e7eb;box-shadow:none}
+.screen{position:static;opacity:1;display:block}
+#s-app{display:block}
+#p-esg{display:block!important}
+}
+</style>
+
 </head>
-<body class="bg-gray-900 text-white font-sans">
+<body>
 
-    <nav class="border-b border-gray-800 p-4 flex justify-between items-center bg-gray-900 sticky top-0 z-10">
-        <div class="flex items-center gap-2">
-            <i data-lucide="leaf" class="text-green-500"></i>
-            <span class="text-xl font-bold tracking-tight">EcoInvest</span>
-        </div>
-        <div class="flex gap-4">
-            <div class="text-right">
-                <p class="text-xs text-gray-400">Buying Power</p>
-                <p class="font-mono text-green-400" id="balance">$25,000.00</p>
-            </div>
-        </div>
-    </nav>
+<!-- ═══════════════════════════════════════
+S0 · ROLE SELECT
+═══════════════════════════════════════ -->
 
-    <main class="p-4 max-w-md mx-auto pb-24">
-        
-        <section class="mb-8">
-            <h2 class="text-gray-400 text-sm mb-1">Global Carbon Credit (EU ETS)</h2>
-            <div class="flex items-baseline gap-2">
-                <span class="text-3xl font-bold">$84.52</span>
-                <span class="text-green-500 text-sm font-medium">+2.4% Today</span>
-            </div>
-            <div class="h-32 w-full bg-gray-800 mt-4 rounded-lg flex items-end gap-1 p-2">
-                <div class="bg-green-500/20 w-full h-1/2 rounded-t"></div>
-                <div class="bg-green-500/30 w-full h-3/4 rounded-t"></div>
-                <div class="bg-green-500/40 w-full h-2/3 rounded-t"></div>
-                <div class="bg-green-500/60 w-full h-5/6 rounded-t"></div>
-                <div class="bg-green-500 w-full h-full rounded-t"></div>
-            </div>
-        </section>
+<div class="screen on" id="s-role" style="justify-content:center;align-items:center;padding:20px;gap:0">
+<div class="float" style="font-size:64px;margin-bottom:12px">🌿</div>
+<h1 style="font-size:40px;font-weight:800;letter-spacing:-2px">Climfra</h1>
+<p style="color:var(--dim);margin-bottom:8px;font-weight:300;font-size:13px;letter-spacing:.08em">Carbon ESG Intelligence Platform</p>
+<p style="font-size:10px;color:rgba(34,197,94,.6);margin-bottom:36px;font-family:'JetBrains Mono';letter-spacing:.1em">GHG Protocol · Scope 1·2·3 · ISO 14064</p>
 
-        <div class="grid grid-cols-2 gap-4 mb-8">
-            <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
-                <p class="text-xs text-gray-400">Your Credits</p>
-                <p class="text-lg font-bold" id="user-credits">12.5 tCO2e</p>
-            </div>
-            <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
-                <p class="text-xs text-gray-400">Impact Score</p>
-                <p class="text-lg font-bold text-blue-400">A+</p>
-            </div>
-        </div>
+<div style="width:100%;max-width:340px;display:flex;flex-direction:column;gap:10px">
+<div class="card card-g" onclick="goto('s-login-buyer')" style="cursor:pointer">
+<div style="display:flex;align-items:center;gap:14px">
+<span style="font-size:28px">🪪</span>
+<div style="flex:1"><div style="font-weight:700;font-size:15px">Citizen Login</div>
+<div style="font-size:11px;color:var(--dim)">Citizenship ID · Date of Birth</div></div>
+<span style="color:var(--accent);font-size:18px;font-weight:300">→</span>
+</div>
+</div>
+<div class="card card-r" onclick="goto('s-login-seller')" style="cursor:pointer">
+<div style="display:flex;align-items:center;gap:14px">
+<span style="font-size:28px">🏪</span>
+<div style="flex:1"><div style="font-weight:700;font-size:15px">Merchant Portal</div>
+<div style="font-size:11px;color:var(--dim)">Send verified OTP transactions</div></div>
+<span style="color:var(--blue);font-size:18px;font-weight:300">→</span>
+</div>
+</div>
+<div class="card" style="opacity:.4;cursor:not-allowed">
+<div style="display:flex;align-items:center;gap:14px">
+<span style="font-size:28px">🏢</span>
+<div><div style="font-weight:700;font-size:15px">Enterprise Portal</div>
+<div style="font-size:11px;color:var(--dim)">Coming Q3 2026</div></div>
+</div>
+</div>
+</div>
+<p style="margin-top:24px;font-size:10px;color:var(--dim);text-align:center">Prototype · Session-only in-memory store · Not for production use</p>
+</div>
 
-        <section class="bg-gray-800 p-6 rounded-2xl shadow-xl">
-            <div class="flex mb-6 bg-gray-900 p-1 rounded-lg">
-                <button onclick="setMode('buy')" id="buy-tab" class="flex-1 py-2 rounded-md bg-green-600 font-bold">Buy</button>
-                <button onclick="setMode('sell')" id="sell-tab" class="flex-1 py-2 rounded-md font-bold">Sell</button>
-            </div>
+<!-- ═══════════════════════════════════════
+S1 · CITIZEN LOGIN
+═══════════════════════════════════════ -->
 
-            <div class="space-y-4">
-                <div>
-                    <label class="text-xs text-gray-400 uppercase">Quantity (Metric Tons)</label>
-                    <input type="number" id="qty" value="1" class="w-full bg-transparent border-b border-gray-600 py-2 text-2xl outline-none focus:border-green-500 transition">
-                </div>
-                <div class="flex justify-between text-sm">
-                    <span class="text-gray-400">Estimated Total:</span>
-                    <span id="total-price" class="font-mono">$84.52</span>
-                </div>
-                <button onclick="executeTrade()" id="trade-btn" class="w-full bg-green-600 hover:bg-green-500 py-4 rounded-xl font-bold text-lg shadow-lg active:scale-95 transition-all">
-                    Confirm Purchase
-                </button>
-            </div>
-        </section>
-    </main>
+<div class="screen" id="s-login-buyer" style="justify-content:center;align-items:center;padding:24px">
+<div style="width:100%;max-width:340px">
+<button class="btn btn-g" style="margin-bottom:24px;padding:7px 12px;font-size:12px" onclick="goto('s-role')">← Back</button>
+<div style="margin-bottom:26px">
+<div style="font-size:28px;margin-bottom:8px">🪪</div>
+<h2 style="font-size:24px;font-weight:800;letter-spacing:-1px">Citizen Login</h2>
+<p style="color:var(--dim);font-size:12px;margin-top:4px">Verify identity to access your carbon dashboard</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:13px">
+<div><span class="lbl">Citizenship / Aadhaar ID</span><input class="inp" id="b-cid" placeholder="e.g. IN-2841-7743-K" maxlength="20"></div>
+<div><span class="lbl">Date of Birth</span><input class="inp" id="b-dob" type="date"></div>
+<button class="btn btn-p btn-w" style="margin-top:4px" onclick="buyerLogin()">Verify &amp; Enter Dashboard →</button>
+</div>
+<div class="card" style="margin-top:16px;padding:10px 13px;text-align:center">
+<p style="font-size:10px;color:var(--dim)">Demo: <span style="font-family:'JetBrains Mono';color:var(--accent)">IN-0000-0001-A</span> + any DOB</p>
+</div>
+</div>
+</div>
 
-    <div id="modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-6 z-50">
-        <div class="bg-gray-800 p-8 rounded-3xl text-center max-w-xs w-full">
-            <div class="bg-green-500/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i data-lucide="check-circle" class="text-green-500 w-10 h-10"></i>
-            </div>
-            <h3 class="text-xl font-bold mb-2">Trade Successful!</h3>
-            <p class="text-gray-400 text-sm mb-6">Your carbon portfolio has been updated.</p>
-            <button onclick="closeModal()" class="w-full py-3 bg-gray-700 rounded-xl font-bold">Back to Market</button>
-        </div>
-    </div>
+<!-- ═══════════════════════════════════════
+S2 · MERCHANT LOGIN
+═══════════════════════════════════════ -->
 
-    <script>
-        // Initialize Icons
-        lucide.createIcons();
+<div class="screen" id="s-login-seller" style="overflow-y:auto">
+<div style="padding:24px;display:flex;flex-direction:column;align-items:center;min-height:100%">
+<div style="width:100%;max-width:340px;padding:20px 0">
+<button class="btn btn-g" style="margin-bottom:24px;padding:7px 12px;font-size:12px" onclick="goto('s-role')">← Back</button>
+<div style="margin-bottom:26px">
+<div style="font-size:28px;margin-bottom:8px">🏪</div>
+<h2 style="font-size:24px;font-weight:800;letter-spacing:-1px">Merchant Portal</h2>
+<p style="color:var(--dim);font-size:12px;margin-top:4px">Push a carbon transaction to a citizen via OTP</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<div><span class="lbl">Store / Business Name</span><input class="inp" id="s-mname" placeholder="e.g. Big Bazaar, IOC Petrol Pump"></div>
+<div><span class="lbl">Customer Mobile</span><input class="inp" id="s-phone" type="tel" placeholder="+91 98765 43210"></div>
+<div><span class="lbl">Item / Service</span><input class="inp" id="s-item" placeholder="e.g. Petrol 20L, Groceries, MacBook"></div>
+<div><span class="lbl">Amount (₹)</span><input class="inp" id="s-amount" type="number" placeholder="e.g. 1500"></div>
+<div><span class="lbl">Category</span>
+<select class="inp" id="s-cat">
+<option value="grocery">🛒 Grocery</option>
+<option value="ecommerce">📦 E-Commerce</option>
+<option value="ride">🚗 Transport / Ride</option>
+<option value="travel">✈️ Travel</option>
+<option value="food">🍽️ Food &amp; Dining</option>
+<option value="tech">💻 Tech / Digital</option>
+<option value="shopping">🛍️ Retail Shopping</option>
+<option value="fuel">⛽ Fuel</option>
+</select>
+</div>
+<button class="btn btn-p btn-w" onclick="sellerSendOTP()">Send OTP to Customer →</button>
+</div>
+</div>
+</div>
+</div>
 
-        // State Management
-        let balance = 25000.00;
-        let credits = 12.5;
-        let pricePerTon = 84.52;
-        let mode = 'buy';
+<!-- ═══════════════════════════════════════
+S3 · OTP APPROVAL
+═══════════════════════════════════════ -->
 
-        const qtyInput = document.getElementById('qty');
-        const totalDisplay = document.getElementById('total-price');
+<div class="screen" id="s-otp" style="overflow-y:auto">
+<div style="padding:24px;display:flex;flex-direction:column;align-items:center;min-height:100%">
+<div style="width:100%;max-width:360px;text-align:center;padding:20px 0">
+<div style="font-size:48px;margin-bottom:12px">📧</div>
+<h2 style="font-size:22px;font-weight:800;letter-spacing:-1px;margin-bottom:6px">Approve Transaction</h2>
+<p style="color:var(--dim);font-size:12px;margin-bottom:4px">One-time code sent to email linked with</p>
+<div id="otp-phone" style="font-family:'JetBrains Mono';font-size:15px;color:var(--accent);margin-bottom:20px"></div>
+<div class="card" style="margin-bottom:16px;padding:16px;text-align:left">
+<p style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Transaction from</p>
+<div id="otp-merchant" style="font-size:17px;font-weight:700;margin-bottom:4px"></div>
+<div id="otp-item" style="font-size:12px;color:var(--dim);margin-bottom:12px"></div>
+<div style="display:flex;flex-direction:column;gap:0">
+<div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--border)"><span style="color:var(--dim);font-size:12px">Amount</span><span id="otp-amount" style="font-family:'JetBrains Mono';font-weight:700;color:var(--accent)"></span></div>
+<div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--border)"><span style="color:var(--dim);font-size:12px">Est. CO₂</span><span id="otp-co2" style="font-family:'JetBrains Mono';font-weight:700;color:var(--warn)"></span></div>
+<div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--border)"><span style="color:var(--dim);font-size:12px">Reward</span><span id="otp-reward" style="font-family:'JetBrains Mono';font-weight:700;color:var(--accent)"></span></div>
+<div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--border)"><span style="color:var(--dim);font-size:12px">Receipt #</span><span id="otp-receipt" style="font-family:'JetBrains Mono';font-size:10px;color:var(--blue)"></span></div>
+</div>
+</div>
+<p style="font-size:12px;color:var(--dim);margin-bottom:10px">Enter 6-digit OTP to approve</p>
+<div class="otp-wrap">
+<input class="otp-d" maxlength="1" id="o1" oninput="onext(this,'o2')" onkeydown="oback(event,this,null)">
+<input class="otp-d" maxlength="1" id="o2" oninput="onext(this,'o3')" onkeydown="oback(event,this,'o1')">
+<input class="otp-d" maxlength="1" id="o3" oninput="onext(this,'o4')" onkeydown="oback(event,this,'o2')">
+<input class="otp-d" maxlength="1" id="o4" oninput="onext(this,'o5')" onkeydown="oback(event,this,'o3')">
+<input class="otp-d" maxlength="1" id="o5" oninput="onext(this,'o6')" onkeydown="oback(event,this,'o4')">
+<input class="otp-d" maxlength="1" id="o6" oninput="onext(this,null)" onkeydown="oback(event,this,'o5')">
+</div>
+<div class="card" style="display:inline-block;padding:7px 13px;margin-bottom:16px">
+<span style="font-size:10px;color:var(--dim)">Demo OTP: </span>
+<span id="otp-hint" style="font-family:'JetBrains Mono';color:var(--accent);font-size:13px;font-weight:700"></span>
+</div><br>
+<button class="btn btn-p btn-w" onclick="verifyOTP()">✅ Approve &amp; Submit</button>
+<button class="btn btn-g btn-w" style="margin-top:8px" onclick="goto('s-role')">❌ Decline</button>
+</div>
+</div>
+</div>
 
-        // Logic
-        qtyInput.addEventListener('input', () => {
-            const total = (qtyInput.value * pricePerTon).toFixed(2);
-            totalDisplay.innerText = `$${total}`;
-        });
+<!-- ═══════════════════════════════════════
+S4 · AI PROCESSING
+═══════════════════════════════════════ -->
 
-        function setMode(newMode) {
-            mode = newMode;
-            const buyTab = document.getElementById('buy-tab');
-            const sellTab = document.getElementById('sell-tab');
-            const tradeBtn = document.getElementById('trade-btn');
+<div class="screen" id="s-ai" style="justify-content:center;align-items:center;padding:24px;text-align:center">
+<div style="font-size:52px;margin-bottom:14px">🤖</div>
+<h2 style="font-size:20px;font-weight:800;margin-bottom:6px">AI Carbon Engine</h2>
+<p style="color:var(--dim);font-size:12px;margin-bottom:26px">Calculating full lifecycle emissions…</p>
+<div style="display:flex;gap:7px;align-items:center;justify-content:center">
+<div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div>
+</div>
+<div id="ai-steps" style="margin-top:20px;text-align:left;width:100%;max-width:300px"></div>
+</div>
 
-            if (mode === 'buy') {
-                buyTab.classList.add('bg-green-600');
-                sellTab.classList.remove('bg-red-600');
-                tradeBtn.innerText = 'Confirm Purchase';
-                tradeBtn.classList.replace('bg-red-600', 'bg-green-600');
-            } else {
-                sellTab.classList.add('bg-red-600');
-                buyTab.classList.remove('bg-green-600');
-                tradeBtn.innerText = 'Confirm Sale';
-                tradeBtn.classList.replace('bg-green-600', 'bg-red-600');
-            }
-        }
+<!-- ═══════════════════════════════════════
+S5 · MAIN APP
+═══════════════════════════════════════ -->
 
-        function executeTrade() {
-            const qty = parseFloat(qtyInput.value);
-            const cost = qty * pricePerTon;
+<div class="screen" id="s-app">
 
-            if (mode === 'buy') {
-                if (cost > balance) return alert("Insufficient funds!");
-                balance -= cost;
-                credits += qty;
-            } else {
-                if (qty > credits) return alert("Not enough credits!");
-                balance += cost;
-                credits -= qty;
-            }
+<!-- HEADER -->
 
-            updateUI();
-            document.getElementById('modal').classList.remove('hidden');
-        }
+<header style="padding:12px 16px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;border-bottom:1px solid var(--border)">
+<div style="display:flex;align-items:center;gap:10px">
+<div id="uAvatar" style="width:38px;height:38px;border-radius:12px;background:var(--accent);display:grid;place-items:center;font-size:18px"></div>
+<div>
+<div id="uName" style="font-weight:700;font-size:13px"></div>
+<div id="uId" style="font-family:'JetBrains Mono';font-size:9px;color:var(--dim)"></div>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:7px">
+<div class="card" style="padding:6px 11px;border-radius:10px;text-align:right">
+<div style="font-size:8px;color:var(--dim);text-transform:uppercase;letter-spacing:.07em;line-height:1">Rewards</div>
+<div id="hdr-rewards" style="font-family:'JetBrains Mono';font-weight:700;color:var(--accent);font-size:15px">₹0</div>
+</div>
+<button class="btn btn-g" style="padding:7px 10px;font-size:11px" onclick="goto('s-role')">Exit</button>
+</div>
+</header>
 
-        function updateUI() {
-            document.getElementById('balance').innerText = `$${balance.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-            document.getElementById('user-credits').innerText = `${credits.toFixed(1)} tCO2e`;
-        }
+<div class="scroll">
 
-        function closeModal() {
-            document.getElementById('modal').classList.add('hidden');
-        }
-    </script>
+```
+<!-- ── PAGE: OVERVIEW ── -->
+<div id="p-ov" class="page on">
+<div class="bento">
+
+<!-- HERO SCORE -->
+<div class="card card-g s2" style="text-align:center;padding:22px 16px">
+<div style="font-size:9px;color:var(--dim);letter-spacing:.15em;text-transform:uppercase;margin-bottom:2px">Annual Carbon Footprint</div>
+<div id="ov-total" style="font-size:44px;font-weight:800;letter-spacing:-2px;line-height:1.1">0.0 <span style="font-size:14px;color:var(--dim);font-weight:400">kg CO₂</span></div>
+<div class="score-ring" style="margin:12px auto">
+<svg width="120" height="120">
+<circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="8"/>
+<circle id="score-arc" cx="60" cy="60" r="52" fill="none" stroke="var(--accent)" stroke-width="8"
+stroke-dasharray="0 327" stroke-linecap="round" style="transition:stroke-dasharray .8s ease"/>
+</svg>
+<div class="score-inner">
+<div id="score-val" style="font-size:26px;font-weight:800">0</div>
+<div style="font-size:8px;color:var(--dim);letter-spacing:.1em">HEALTH</div>
+</div>
+</div>
+<span id="score-lbl" class="pill pill-g" style="font-size:10px;padding:4px 12px">EXCELLENT</span>
+</div>
+
+<!-- CATEGORY MINI CARDS -->
+<div class="card" style="padding:12px;border-radius:var(--rl)"><div style="font-size:18px;margin-bottom:4px">🛍️</div><div style="font-size:10px;font-weight:700">Retail</div><div id="v-shopping" style="font-family:'JetBrains Mono';font-size:13px;color:#a78bfa;margin-top:2px">0.0</div></div>
+<div class="card" style="padding:12px;border-radius:var(--rl)"><div style="font-size:18px;margin-bottom:4px">✈️</div><div style="font-size:10px;font-weight:700">Travel</div><div id="v-travel" style="font-family:'JetBrains Mono';font-size:13px;color:#38bdf8;margin-top:2px">0.0</div></div>
+<div class="card" style="padding:12px;border-radius:var(--rl)"><div style="font-size:18px;margin-bottom:4px">🍽️</div><div style="font-size:10px;font-weight:700">Dining</div><div id="v-food" style="font-family:'JetBrains Mono';font-size:13px;color:#4ade80;margin-top:2px">0.0</div></div>
+<div class="card" style="padding:12px;border-radius:var(--rl)"><div style="font-size:18px;margin-bottom:4px">💻</div><div style="font-size:10px;font-weight:700">Digital</div><div id="v-tech" style="font-family:'JetBrains Mono';font-size:13px;color:#22d3ee;margin-top:2px">0.0</div></div>
+<div class="card" style="padding:12px;border-radius:var(--rl)"><div style="font-size:18px;margin-bottom:4px">🛒</div><div style="font-size:10px;font-weight:700">Grocery</div><div id="v-grocery" style="font-family:'JetBrains Mono';font-size:13px;color:#fb923c;margin-top:2px">0.0</div></div>
+<div class="card" style="padding:12px;border-radius:var(--rl)"><div style="font-size:18px;margin-bottom:4px">🚗</div><div style="font-size:10px;font-weight:700">Rides</div><div id="v-ride" style="font-family:'JetBrains Mono';font-size:13px;color:#f472b6;margin-top:2px">0.0</div></div>
+<div class="card" style="padding:12px;border-radius:var(--rl)"><div style="font-size:18px;margin-bottom:4px">⚡</div><div style="font-size:10px;font-weight:700">Electricity</div><div id="v-elec" style="font-family:'JetBrains Mono';font-size:13px;color:#fbbf24;margin-top:2px">0.0</div></div>
+<div class="card" style="padding:12px;border-radius:var(--rl)"><div style="font-size:18px;margin-bottom:4px">💧</div><div style="font-size:10px;font-weight:700">Water</div><div id="v-water" style="font-family:'JetBrains Mono';font-size:13px;color:#60a5fa;margin-top:2px">0.0</div></div>
+
+<!-- UTILITY BILLS -->
+<div class="card card-y s2" style="padding:16px">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px">
+<div style="display:flex;align-items:center;gap:8px">
+<span style="font-size:17px">🏠</span>
+<div>
+<div style="font-weight:700;font-size:13px">Home Utilities</div>
+<div style="font-size:10px;color:var(--dim)">Electricity · Water · Monthly CO₂</div>
+</div>
+</div>
+<button id="fetch-btn" onclick="autoFetchUtilities()" style="background:rgba(250,204,21,.12);border:1px solid rgba(250,204,21,.28);border-radius:9px;color:#fbbf24;font-size:10px;font-weight:700;padding:5px 10px;cursor:pointer;font-family:'Outfit',sans-serif;display:flex;align-items:center;gap:4px">
+<span id="fetch-icon">⚡</span><span id="fetch-txt">Govt Auto-Fetch</span>
+</button>
+</div>
+
+<!-- MONTHLY COLUMNS TABLE -->
+<div style="overflow-x:auto;margin-bottom:13px">
+<table class="util-table">
+<thead>
+<tr>
+<th style="text-align:left">Month</th>
+<th>⚡ kWh</th><th>⚡ CO₂ kg</th>
+<th>💧 KL</th><th>💧 CO₂ kg</th>
+<th>Total kg</th><th>Src</th>
+</tr>
+</thead>
+<tbody id="util-tbody"></tbody>
+</table>
+</div>
+
+<!-- UTILITY TOTALS -->
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:13px">
+<div style="background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.15);border-radius:9px;padding:9px;text-align:center">
+<div style="font-size:8px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Elec CO₂</div>
+<div id="tot-elec" style="font-family:'JetBrains Mono';font-size:13px;font-weight:700;color:#fbbf24">0.0 kg</div>
+</div>
+<div style="background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.15);border-radius:9px;padding:9px;text-align:center">
+<div style="font-size:8px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Water CO₂</div>
+<div id="tot-water" style="font-family:'JetBrains Mono';font-size:13px;font-weight:700;color:#60a5fa">0.0 kg</div>
+</div>
+<div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.15);border-radius:9px;padding:9px;text-align:center">
+<div style="font-size:8px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Combined</div>
+<div id="tot-util" style="font-family:'JetBrains Mono';font-size:13px;font-weight:700;color:var(--accent)">0.0 kg</div>
+</div>
+</div>
+
+<!-- MANUAL ADD ROW -->
+<div style="border-top:1px solid var(--border);padding-top:12px">
+<span class="lbl" style="margin-bottom:8px;display:block">Add Entry Manually</span>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px">
+<div>
+<span class="lbl">Month</span>
+<select class="inp" id="ut-month" style="padding:9px 10px;font-size:12px">
+<option>Jan 2026</option><option>Feb 2026</option><option selected>Mar 2026</option>
+<option>Apr 2026</option><option>May 2026</option><option>Jun 2026</option>
+</select>
+</div>
+<div>
+<span class="lbl">Source</span>
+<select class="inp" id="ut-src" style="padding:9px 10px;font-size:12px" onchange="updateUtilLabel()">
+<option value="electricity">⚡ Electricity</option>
+<option value="water">💧 Water</option>
+</select>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px">
+<div>
+<span class="lbl" id="ut-unit-lbl">Units (kWh)</span>
+<input class="inp" id="ut-units" type="number" placeholder="e.g. 220" style="padding:9px 10px;font-size:12px">
+</div>
+<div>
+<span class="lbl">Bill Amount (₹)</span>
+<input class="inp" id="ut-bill" type="number" placeholder="e.g. 1800" style="padding:9px 10px;font-size:12px">
+</div>
+</div>
+<button class="btn btn-p btn-w" style="padding:10px" onclick="addUtility()">+ Add to Dashboard</button>
+</div>
+
+<!-- GOVT FETCH STATUS -->
+<div id="gov-status" style="display:none;margin-top:11px;padding:9px 12px;border-radius:9px;background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.15)">
+<div style="font-size:11px;color:var(--accent);font-weight:700">✅ Synced from Government Portal</div>
+<div id="gov-sub" style="font-size:10px;color:var(--dim);margin-top:2px">BESCOM / Municipal Authority · Last synced just now</div>
+</div>
+</div>
+
+<!-- REWARDS CARD -->
+<div class="reward-card s2">
+<div style="display:flex;justify-content:space-between;align-items:flex-start">
+<div>
+<div style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px">Green Rewards Balance</div>
+<div id="ov-rewards" style="font-size:34px;font-weight:800;letter-spacing:-1px">₹0</div>
+<div style="font-size:11px;color:var(--dim);margin-top:2px">Earned from low-emission choices</div>
+</div>
+<span style="font-size:36px">🏆</span>
+</div>
+<button class="btn btn-p btn-w" style="margin-top:16px" onclick="openModal('modal-withdraw')">Withdraw Rewards →</button>
+</div>
+
+<!-- SCOPE 3 CARD -->
+<div class="card card-p s2" style="padding:16px">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px">
+<div style="display:flex;align-items:center;gap:7px">
+<span style="font-size:16px">🔬</span>
+<div>
+<div style="font-weight:700;font-size:12px">Scope 3 Compliance Tracker</div>
+<div style="font-size:9px;color:var(--dim)">GHG Protocol · Categories 1–15</div>
+</div>
+</div>
+<span class="badge" style="background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);color:#f59e0b">BETA · NOT MANDATED</span>
+</div>
+<div id="s3-bars" style="display:flex;flex-direction:column;gap:7px"></div>
+<div style="margin-top:11px;padding:9px 11px;border-radius:9px;background:rgba(139,92,246,.07);border:1px solid rgba(139,92,246,.14)">
+<div style="font-size:10px;color:var(--purple);font-weight:700;margin-bottom:2px">ℹ️ What is Scope 3?</div>
+<div style="font-size:10px;color:var(--dim);line-height:1.5">Indirect emissions across your value chain — purchases, travel, services. Not yet mandatory for citizens, but Climfra tracks it proactively so you're compliance-ready.</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<!-- ── PAGE: HISTORY ── -->
+<div id="p-ac" class="page">
+<div style="padding:14px 14px 8px;display:flex;justify-content:space-between;align-items:center">
+<h2 style="font-size:17px;font-weight:800">Transaction History</h2>
+<span id="tx-count" class="pill pill-g">0 items</span>
+</div>
+<div id="activity-list"></div>
+</div>
+
+<!-- ── PAGE: LOG ── -->
+<div id="p-add" class="page">
+<div style="padding:14px 14px 6px">
+<h2 style="font-size:17px;font-weight:800">Log Emission</h2>
+<p style="font-size:11px;color:var(--dim);margin-top:3px">AI calculates footprint from your inputs</p>
+</div>
+<div class="cat-tabs">
+<div class="cat-tab on" id="lt-grocery" onclick="setCat('grocery')">🛒 Grocery</div>
+<div class="cat-tab" id="lt-ecommerce" onclick="setCat('ecommerce')">📦 E-Commerce</div>
+<div class="cat-tab" id="lt-ride" onclick="setCat('ride')">🚗 Ola/Uber</div>
+<div class="cat-tab" id="lt-travel" onclick="setCat('travel')">✈️ Travel</div>
+<div class="cat-tab" id="lt-food" onclick="setCat('food')">🍽️ Dining</div>
+<div class="cat-tab" id="lt-tech" onclick="setCat('tech')">💻 Digital</div>
+<div class="cat-tab" id="lt-shopping" onclick="setCat('shopping')">🛍️ Retail</div>
+</div>
+<div id="log-form" style="padding:0 12px 20px"></div>
+</div>
+
+<!-- ── PAGE: HEATMAP ── -->
+<div id="p-hm" class="page">
+<div style="padding:14px">
+<h2 style="font-size:17px;font-weight:800;margin-bottom:3px">City Heat Map</h2>
+<p style="font-size:11px;color:var(--dim);margin-bottom:13px">Emission intensity across all citizens · Mumbai Metro</p>
+<div class="card" style="margin-bottom:12px;padding:14px">
+<div style="display:flex;justify-content:space-between;margin-bottom:9px">
+<span style="font-size:12px;font-weight:700">Mumbai Metro Region</span>
+<span class="pill pill-b">Live</span>
+</div>
+<div id="hmap" style="display:grid;grid-template-columns:repeat(10,1fr);gap:3px"></div>
+<div style="display:flex;gap:9px;align-items:center;margin-top:9px;font-size:10px;color:var(--dim);flex-wrap:wrap">
+<div style="display:flex;gap:3px;align-items:center"><div style="width:10px;height:10px;border-radius:3px;background:#22c55e"></div>Low</div>
+<div style="display:flex;gap:3px;align-items:center"><div style="width:10px;height:10px;border-radius:3px;background:#f59e0b"></div>Medium</div>
+<div style="display:flex;gap:3px;align-items:center"><div style="width:10px;height:10px;border-radius:3px;background:#ef4444"></div>High</div>
+</div>
+</div>
+<div id="zone-list"></div>
+</div>
+</div>
+
+<!-- ── PAGE: REWARDS ── -->
+<div id="p-rw" class="page">
+<div style="padding:14px">
+<h2 style="font-size:17px;font-weight:800;margin-bottom:13px">Rewards &amp; Credits</h2>
+<div class="reward-card" style="margin-bottom:12px">
+<div style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px">Total Balance</div>
+<div id="rw-balance" style="font-size:38px;font-weight:800;letter-spacing:-1px">₹0</div>
+<div style="margin-top:13px;display:flex;gap:7px">
+<button class="btn btn-p" style="flex:1;padding:10px" onclick="openModal('modal-withdraw')">Withdraw</button>
+<button class="btn btn-g" style="flex:1;padding:10px" onclick="switchTab('ac')">History</button>
+</div>
+</div>
+<div class="card" style="margin-bottom:11px">
+<div style="font-weight:700;margin-bottom:11px;font-size:13px">How You Earn</div>
+<div style="display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;align-items:center;gap:10px"><span style="font-size:17px">🌱</span><div style="flex:1;font-size:12px">Grade A purchase (low emission)</div><span class="pill pill-g">+₹10</span></div>
+<div style="display:flex;align-items:center;gap:10px"><span style="font-size:17px">🌿</span><div style="flex:1;font-size:12px">Grade B purchase (medium emission)</div><span class="pill pill-y">+₹5</span></div>
+<div style="display:flex;align-items:center;gap:10px"><span style="font-size:17px">🛍️</span><div style="flex:1;font-size:12px">Paper bag verified by photo</div><span class="pill pill-g">+₹15</span></div>
+<div style="display:flex;align-items:center;gap:10px"><span style="font-size:17px">🎒</span><div style="flex:1;font-size:12px">Own reusable bag + photo</div><span class="pill pill-g">+₹25</span></div>
+<div style="display:flex;align-items:center;gap:10px"><span style="font-size:17px">🚲</span><div style="flex:1;font-size:12px">Public / green transport</div><span class="pill pill-g">+₹10/trip</span></div>
+<div style="display:flex;align-items:center;gap:10px"><span style="font-size:17px">⭐</span><div style="flex:1;font-size:12px">Top 10% of city weekly</div><span class="pill pill-g">+₹50/wk</span></div>
+</div>
+</div>
+<div id="rw-history"></div>
+</div>
+</div>
+
+<!-- ── PAGE: AI ADVISOR ── -->
+<div id="p-ai" class="page">
+<div style="padding:14px 14px 6px;display:flex;justify-content:space-between;align-items:center">
+<div><h2 style="font-size:17px;font-weight:800">AI Carbon Advisor</h2>
+<p style="font-size:11px;color:var(--dim);margin-top:2px">Climfra Intelligence Engine · Personalised guidance</p></div>
+<span class="pill pill-g">LIVE</span>
+</div>
+<div style="padding:0 12px 10px;display:flex;gap:7px;overflow-x:auto">
+<button onclick="aiQuick('How can I reduce my carbon footprint this week?')" class="cat-tab">💡 Tips</button>
+<button onclick="aiQuick('Analyse my worst emission categories')" class="cat-tab">📊 Analyse</button>
+<button onclick="aiQuick('What carbon offsets should I buy?')" class="cat-tab">🌳 Offsets</button>
+<button onclick="aiQuick('How do I achieve ESG grade A?')" class="cat-tab">📈 Grade A</button>
+<button onclick="aiQuick('Compare my footprint to the average Indian citizen')" class="cat-tab">🇮🇳 Benchmark</button>
+</div>
+<div id="ai-chat-window" style="padding:0 12px;min-height:200px;display:flex;flex-direction:column;gap:10px"></div>
+<div style="padding:12px;display:flex;gap:8px;position:sticky;bottom:106px;background:var(--bg);border-top:1px solid var(--border)">
+<input class="inp" id="ai-input" placeholder="Ask about your carbon data…" style="flex:1;padding:11px 13px;font-size:13px" onkeydown="if(event.key==='Enter')sendAI()">
+<button class="btn btn-p" style="padding:11px 16px" onclick="sendAI()">→</button>
+</div>
+</div>
+
+<!-- ── PAGE: LEADERBOARD ── -->
+<div id="p-lb" class="page">
+<div style="padding:14px 14px 8px">
+<h2 style="font-size:17px;font-weight:800">City Leaderboard</h2>
+<p style="font-size:11px;color:var(--dim);margin-top:2px">Mumbai Metro · March 2026 · Refreshed daily</p>
+</div>
+<div style="padding:0 12px 12px">
+<div class="reward-card" style="text-align:center;padding:18px">
+<div style="font-size:40px;font-weight:800;letter-spacing:-2px;color:var(--accent)" id="lb-rank">#47</div>
+<div style="font-size:11px;color:var(--dim);margin-top:1px">Your city rank this month</div>
+<div style="display:flex;justify-content:center;gap:22px;margin-top:14px">
+<div><div id="lb-co2" style="font-family:'JetBrains Mono';font-size:15px;font-weight:700;color:var(--warn)">0 kg</div><div style="font-size:9px;color:var(--dim)">Total CO₂</div></div>
+<div><div id="lb-score" style="font-family:'JetBrains Mono';font-size:15px;font-weight:700;color:var(--accent)">0</div><div style="font-size:9px;color:var(--dim)">Health Score</div></div>
+<div><div style="font-family:'JetBrains Mono';font-size:15px;font-weight:700;color:var(--blue)">Top 5%</div><div style="font-size:9px;color:var(--dim)">Percentile</div></div>
+</div>
+</div>
+</div>
+<div style="padding:0 12px 10px;display:flex;gap:7px">
+<button class="cat-tab on" id="lb-f-city" onclick="setLBFilter('city')">🏙️ City</button>
+<button class="cat-tab" id="lb-f-ward" onclick="setLBFilter('ward')">📍 Ward</button>
+<button class="cat-tab" id="lb-f-friends" onclick="setLBFilter('friends')">👥 Friends</button>
+</div>
+<div id="lb-list" style="padding:0 12px"></div>
+</div>
+
+<!-- ── PAGE: OFFSET MARKETPLACE ── -->
+<div id="p-mkt" class="page">
+<div style="padding:14px 14px 6px">
+<h2 style="font-size:17px;font-weight:800">Carbon Offset Market</h2>
+<p style="font-size:11px;color:var(--dim);margin-top:2px">Gold Standard &amp; Verra VCS verified credits</p>
+</div>
+<div style="padding:0 12px 12px">
+<div class="card card-g" style="padding:14px">
+<div style="display:flex;align-items:center;gap:10px">
+<span style="font-size:26px">🎯</span>
+<div style="flex:1"><div style="font-weight:700;font-size:13px">Your Net Zero Gap</div>
+<div id="mkt-status" style="font-size:11px;color:var(--dim);margin-top:1px">Loading…</div></div>
+<div style="text-align:right"><div id="mkt-co2" style="font-family:'JetBrains Mono';font-size:14px;font-weight:700;color:var(--warn)">0 kg</div>
+<div style="font-size:9px;color:var(--dim)">unoffset</div></div>
+</div>
+<div style="margin-top:10px;background:rgba(255,255,255,.05);border-radius:4px;height:5px;overflow:hidden">
+<div id="mkt-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#4ade80);border-radius:4px;transition:width .7s"></div>
+</div>
+<div style="display:flex;justify-content:space-between;margin-top:4px">
+<span id="mkt-pct" style="font-size:9px;color:var(--dim)">0% offset</span>
+<span style="font-size:9px;color:var(--dim)">Goal: 100% Net Zero</span>
+</div>
+</div>
+</div>
+<div id="mkt-list" style="padding:0 12px"></div>
+</div>
+
+<!-- ── PAGE: ESG REPORT ── -->
+<div id="p-esg" class="page">
+<div style="padding:14px 14px 6px;display:flex;justify-content:space-between;align-items:center">
+<div><h2 style="font-size:17px;font-weight:800">ESG Carbon Report</h2>
+<p style="font-size:11px;color:var(--dim);margin-top:2px">GHG Protocol · ISO 14064 · BRSR aligned</p></div>
+<button class="btn btn-p" style="padding:8px 13px;font-size:11px" onclick="exportESG()">⬇ Export</button>
+</div>
+<div id="esg-body" style="padding:0 12px 20px"></div>
+</div>
+```
+
+</div><!-- /scroll -->
+
+<nav class="nav-dock" style="gap:1px;padding:3px">
+<div class="nav-item on" id="t-ov" onclick="switchTab('ov')">🌍</div>
+<div class="nav-item" id="t-ac" onclick="switchTab('ac')">📋</div>
+<div class="nav-item" id="t-add" onclick="switchTab('add')">➕ Log</div>
+<div class="nav-item" id="t-hm" onclick="switchTab('hm')">🗺️</div>
+<div class="nav-item" id="t-rw" onclick="switchTab('rw')">🏆</div>
+<div class="nav-item" id="t-ai" onclick="switchTab('ai')">🤖 AI</div>
+<div class="nav-item" id="t-lb" onclick="switchTab('lb')">🥇</div>
+<div class="nav-item" id="t-mkt" onclick="switchTab('mkt')">🌳</div>
+<div class="nav-item" id="t-esg" onclick="switchTab('esg')">📊 ESG</div>
+</nav>
+</div>
+
+<!-- ═══════════════════════════════════════
+MODALS
+═══════════════════════════════════════ -->
+
+<!-- BAG MODAL -->
+
+<div class="backdrop" id="modal-bag">
+<div class="modal">
+<div class="handle"></div>
+<!-- STEP 1 -->
+<div id="bag-s1">
+<div style="text-align:center;margin-bottom:16px">
+<div class="bag-wave" style="font-size:58px;display:inline-block;margin-bottom:8px">🛍️</div>
+<h3 style="font-size:19px;font-weight:800;letter-spacing:-.5px">Did you use an eco bag?</h3>
+<p style="color:var(--dim);font-size:12px;margin-top:5px">Paper &amp; reusable bags earn <span style="color:var(--accent);font-weight:700">Green Rewards!</span></p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:17px">
+<div class="bag-opt sel" id="bo-paper" onclick="setBagOpt('paper')">
+<span style="font-size:24px">🛍️</span>
+<div style="flex:1"><div style="font-weight:700;font-size:13px">Paper Bag</div><div style="font-size:11px;color:var(--dim)">+₹15 · Upload photo to verify</div></div>
+<span class="pill pill-g" style="font-size:11px;padding:4px 9px">+₹15</span>
+</div>
+<div class="bag-opt" id="bo-own" onclick="setBagOpt('own')">
+<span style="font-size:24px">🎒</span>
+<div style="flex:1"><div style="font-weight:700;font-size:13px">Own / Jute Bag</div><div style="font-size:11px;color:var(--dim)">Best! +₹25 · Upload photo</div></div>
+<span class="pill pill-g" style="font-size:11px;padding:4px 9px">+₹25</span>
+</div>
+<div class="bag-opt" id="bo-plastic" onclick="setBagOpt('plastic')">
+<span style="font-size:24px">🛒</span>
+<div style="flex:1"><div style="font-weight:700;font-size:13px">Plastic Bag</div><div style="font-size:11px;color:var(--dim)">No reward · +0.6 kg CO₂ penalty</div></div>
+<span class="pill pill-r" style="font-size:11px;padding:4px 9px">−CO₂</span>
+</div>
+<div class="bag-opt" id="bo-none" onclick="setBagOpt('none')">
+<span style="font-size:24px">🚫</span>
+<div style="flex:1"><div style="font-weight:700;font-size:13px">No Bag Needed</div><div style="font-size:11px;color:var(--dim)">Small items · No change</div></div>
+</div>
+</div>
+<div id="bag-photo-sec" style="margin-bottom:16px">
+<span class="lbl" style="margin-bottom:7px;display:block">📸 Upload bag photo — AI verifies for bonus</span>
+<input type="file" id="bag-file" accept="image/*" style="display:none" onchange="handleBagPhoto(this)">
+<div class="bag-zone" id="bag-zone" onclick="document.getElementById('bag-file').click()">
+<div id="bag-zone-inner"><div style="font-size:28px;margin-bottom:6px">📷</div>
+<div style="font-weight:700;font-size:13px">Tap to upload</div>
+<div style="font-size:10px;color:var(--dim);margin-top:3px">AI verifies it's an eco bag</div></div>
+<img id="bag-preview" style="display:none;width:100%;border-radius:12px;max-height:160px;object-fit:cover" alt="">
+</div>
+<div id="bag-verify" style="display:none;margin-top:9px;padding:9px 12px;border-radius:9px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2)">
+<div style="display:flex;align-items:center;gap:8px">
+<span id="bag-v-icon" style="font-size:16px">⏳</span>
+<div style="flex:1"><div id="bag-v-msg" style="font-size:12px;font-weight:700">Verifying…</div><div id="bag-v-sub" style="font-size:10px;color:var(--dim)">AI analysing image</div></div>
+<span id="bag-v-bonus" class="pill pill-g" style="display:none;font-size:10px;padding:4px 8px">+₹5</span>
+</div>
+</div>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:10px;background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.12);margin-bottom:14px">
+<span style="font-size:12px;color:var(--dim)">Bag reward</span>
+<span id="bag-total" class="pill pill-g" style="font-size:11px;padding:4px 10px">+₹0</span>
+</div>
+<button class="btn btn-shimmer btn-w" onclick="claimBag()">🌿 Claim Green Points →</button>
+<button class="btn btn-g btn-w" style="margin-top:8px" onclick="closeModal('modal-bag')">Skip</button>
+</div>
+<!-- STEP 2: CELEBRATE -->
+<div id="bag-s2" style="display:none;text-align:center;padding:10px 0 16px;position:relative;overflow:hidden">
+<div id="bag-confetti" style="position:absolute;inset:0;pointer-events:none;overflow:hidden"></div>
+<div id="bag-cel-icon" style="font-size:64px;margin-bottom:12px">🛍️</div>
+<h3 style="font-size:22px;font-weight:800;letter-spacing:-1px;margin-bottom:5px">Amazing! 🎉</h3>
+<p id="bag-cel-msg" style="color:var(--dim);font-size:13px;margin-bottom:18px"></p>
+<div class="reward-card" style="margin-bottom:18px;text-align:left">
+<div style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px">Points Earned</div>
+<div id="bag-cel-amt" style="font-size:36px;font-weight:800;color:var(--accent)">+₹0</div>
+<div id="bag-cel-sub" style="font-size:11px;color:var(--dim);margin-top:2px"></div>
+</div>
+<button class="btn btn-p btn-w" onclick="closeBagCelebrate()">View Dashboard →</button>
+</div>
+</div>
+</div>
+
+<!-- WITHDRAW MODAL -->
+
+<div class="backdrop" id="modal-withdraw">
+<div class="modal">
+<div class="handle"></div>
+<h3 style="font-size:19px;font-weight:800;margin-bottom:4px">Withdraw Rewards</h3>
+<p style="color:var(--dim);font-size:12px;margin-bottom:16px">Available: <span id="w-avail" style="color:var(--accent);font-weight:700;font-family:'JetBrains Mono'">₹0</span></p>
+<div style="margin-bottom:13px"><span class="lbl">Amount (₹)</span><input class="inp" id="w-amt" type="number" placeholder="Enter amount to withdraw"></div>
+<div style="margin-bottom:16px">
+<span class="lbl" style="margin-bottom:8px;display:block">Withdraw via</span>
+<div style="display:flex;flex-direction:column;gap:8px">
+<div class="w-opt sel" id="wo-upi" onclick="setWOpt('upi')"><span style="font-size:20px">📱</span><div><div style="font-weight:700;font-size:13px">UPI / PhonePe</div><div style="font-size:11px;color:var(--dim)">Instant</div></div></div>
+<div class="w-opt" id="wo-bank" onclick="setWOpt('bank')"><span style="font-size:20px">🏦</span><div><div style="font-weight:700;font-size:13px">Bank Transfer</div><div style="font-size:11px;color:var(--dim)">1–2 business days</div></div></div>
+<div class="w-opt" id="wo-voucher" onclick="setWOpt('voucher')"><span style="font-size:20px">🎁</span><div><div style="font-weight:700;font-size:13px">Green Voucher</div><div style="font-size:11px;color:var(--dim)">Eco-partner stores</div></div></div>
+</div>
+</div>
+<div id="w-detail"></div>
+<button class="btn btn-p btn-w" onclick="processWithdraw()">Confirm Withdrawal →</button>
+<button class="btn btn-g btn-w" style="margin-top:8px" onclick="closeModal('modal-withdraw')">Cancel</button>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════
+JAVASCRIPT
+═══════════════════════════════════════ -->
+
+<script>
+'use strict';
+
+// ══ CONSTANTS ══
+const ELEC_F = 0.82; // kg CO₂ per kWh (India grid avg)
+const WATER_F = 0.419; // kg CO₂ per kL
+
+const S3_MAP = {
+grocery:'Purchased goods & services',ecommerce:'Purchased goods & services',
+shopping:'Purchased goods & services',food:'Purchased goods & services',
+ride:'Business travel',travel:'Business travel',tech:'Purchased goods & services',fuel:'Fuel & energy'
+};
+
+const CAT_META = {
+shopping:{ico:'🛍️',col:'#a78bfa'},travel:{ico:'✈️',col:'#38bdf8'},
+food:{ico:'🍽️',col:'#4ade80'},tech:{ico:'💻',col:'#22d3ee'},
+grocery:{ico:'🛒',col:'#fb923c'},ride:{ico:'🚗',col:'#f472b6'},
+ecommerce:{ico:'📦',col:'#fbbf24'},fuel:{ico:'⛽',col:'#f87171'}
+};
+
+const LOG_FIELDS = {
+grocery:[
+{id:'g-store',lbl:'Store Name',ph:'e.g. Big Bazaar, D-Mart'},
+{id:'g-items',lbl:'Items Purchased',ph:'e.g. Vegetables, Milk, Bread'},
+{id:'g-amt',lbl:'Total Amount (₹)',type:'number',ph:'e.g. 450'},
+{id:'g-plastic',lbl:'Plastic Bags Used',type:'number',ph:'0'},
+{id:'g-organic',lbl:'Organic Items?',type:'select',opts:['No','Yes – some','Yes – mostly']},
+],
+ecommerce:[
+{id:'ec-platform',lbl:'Platform',ph:'e.g. Amazon, Flipkart, Meesho'},
+{id:'ec-product',lbl:'Product',ph:'e.g. Running Shoes, Blender'},
+{id:'ec-weight',lbl:'Package Weight (kg)',type:'number',ph:'e.g. 0.5'},
+{id:'ec-delivery',lbl:'Delivery Type',type:'select',opts:['Standard (5–7 days)','Express (2 days)','Same Day']},
+{id:'ec-returns',lbl:'Return Item?',type:'select',opts:['No','Yes']},
+],
+ride:[
+{id:'r-provider',lbl:'Provider',type:'select',opts:['Ola (Sedan)','Ola (Electric)','Uber','Uber Green (EV)','Rapido Bike','Namma Yatri','Auto Rickshaw','BEST Bus','Metro Rail','Cycle / Walk']},
+{id:'r-km',lbl:'Distance (km)',type:'number',ph:'e.g. 12'},
+{id:'r-pax',lbl:'Passengers',type:'number',ph:'1'},
+],
+travel:[
+{id:'t-from',lbl:'From',ph:'e.g. Mumbai'},{id:'t-to',lbl:'To',ph:'e.g. Delhi'},
+{id:'t-mode',lbl:'Mode',type:'select',opts:['Flight (Economy)','Flight (Business)','Train (Sleeper)','Train (Express)','Bus (AC)','Bus (Non-AC)','Car (Petrol)','Car (EV)','Ship / Cruise']},
+{id:'t-pax',lbl:'Passengers',type:'number',ph:'1'},
+],
+food:[
+{id:'f-place',lbl:'Restaurant / App',ph:'e.g. Swiggy, Zomato, Local Dhaba'},
+{id:'f-meal',lbl:'Meal Type',type:'select',opts:['Vegan','Vegetarian','Egg-based','Non-Vegetarian','Seafood']},
+{id:'f-count',lbl:'Persons',type:'number',ph:'1'},
+{id:'f-delivery',lbl:'Mode',type:'select',opts:['Dine-in','Home Delivery']},
+],
+tech:[
+{id:'tc-item',lbl:'Device / Service',ph:'e.g. MacBook, Cloud Subscription'},
+{id:'tc-hrs',lbl:'Daily Usage (hrs)',type:'number',ph:'e.g. 8'},
+{id:'tc-renew',lbl:'Renewable Power?',type:'select',opts:['No','Partially','Yes']},
+],
+shopping:[
+{id:'sh-item',lbl:'Item',ph:'e.g. Jeans, Sneakers'},
+{id:'sh-brand',lbl:'Brand',ph:'e.g. H&M, FabIndia'},
+{id:'sh-amt',lbl:'Amount (₹)',type:'number',ph:'e.g. 2000'},
+{id:'sh-cond',lbl:'Condition',type:'select',opts:['New','Second-hand / Thrift','Rental']},
+],
+};
+
+// ══ SESSION DB ══
+const DB = {
+users:[{id:'IN-0000-0001-A',dob:'2000-01-01',name:'Aisha Al-Sayed',emoji:'👩',lat:19.076,lng:72.877}],
+currentUser:null,
+txs:[
+{id:1,name:'Tesla Supercharger',cat:'travel',co2:1.2,grade:'A',date:'Today',reward:10,merchant:'Supercharger HQ',receipt:'RCP-2026-00041',scope3:'Business travel',bagClaimed:true},
+{id:2,name:'MacBook Pro M4',cat:'tech',co2:65.0,grade:'C',date:'Yesterday',reward:0,merchant:'Apple Store',receipt:'RCP-2026-00038',scope3:'Purchased goods & services',bagClaimed:true},
+{id:3,name:'Organic Market Haul',cat:'grocery',co2:4.2,grade:'B',date:'Mar 05',reward:5,merchant:'Fresh Mart',receipt:'RCP-2026-00031',scope3:'Purchased goods & services',bagClaimed:false},
+{id:4,name:'Ola Ride 12km',cat:'ride',co2:2.5,grade:'A',date:'Mar 04',reward:10,merchant:'Ola',receipt:'RCP-2026-00029',scope3:'Business travel',bagClaimed:true},
+],
+rewards:{balance:25,history:[
+{desc:'Low-emission transport',amt:10,date:'Today'},
+{desc:'Organic grocery',amt:5,date:'Mar 05'},
+{desc:'Ola ride bonus',amt:10,date:'Mar 04'},
+]},
+utilities:[
+{month:'Jan 2026',elecKwh:210,elecBill:1680,waterKl:8.2,waterBill:410,src:'govt'},
+{month:'Feb 2026',elecKwh:198,elecBill:1584,waterKl:7.8,waterBill:390,src:'govt'},
+{month:'Mar 2026',elecKwh:234,elecBill:1872,waterKl:9.1,waterBill:455,src:'manual'},
+],
+pendingSeller:null,
+otpCode:null,
+};
+
+// ══ HELPERS ══
+const $ = id => document.getElementById(id);
+const toast = msg => { const t=$('toast'); t.textContent=msg; t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),3000); };
+const grade = co2 => co2<5?'A':co2<25?'B':'C';
+const reward = g => g==='A'?10:g==='B'?5:0;
+const genReceipt = () => 'RCP-2026-'+String(Math.floor(10000+Math.random()*89999));
+
+function estimateCO2(cat,item,amt){
+const i=item.toLowerCase();
+if(cat==='fuel'||i.includes('petrol')||i.includes('diesel')) return amt*0.023;
+if(cat==='travel'||i.includes('flight')||i.includes('air')) return 120;
+if(cat==='grocery'||i.includes('groceries')||i.includes('food')) return (amt/100)*2.1;
+if(cat==='tech'||i.includes('laptop')||i.includes('mac')||i.includes('phone')) return amt>30000?65:25;
+return (amt/100)*1.5;
+}
+
+function calcCO2(cat,v){
+if(cat==='grocery'){
+const b=(parseFloat(v['g-amt']||100)/100)*2.1;
+const p=parseFloat(v['g-plastic']||0)*0.6;
+const o=(v['g-organic']||'').includes('mostly')?-.5:(v['g-organic']||'').includes('some')?-.2:0;
+return Math.max(.1,b+p+o);
+}
+if(cat==='ecommerce'){
+const w=parseFloat(v['ec-weight']||.5);
+const m=(v['ec-delivery']||'').includes('Same')?3:(v['ec-delivery']||'').includes('Express')?2:1;
+return w*3.5*m*((v['ec-returns']||'').includes('Yes')?1.5:1);
+}
+if(cat==='ride'){
+const km=parseFloat(v['r-km']||5),pax=Math.max(1,parseFloat(v['r-pax']||1));
+const prov=v['r-provider']||'';
+const f=prov.includes('Electric')||prov.includes('EV')?0.04:prov.includes('Metro')||prov.includes('Bus')?0.04:prov.includes('Bike')||prov.includes('Cycle')||prov.includes('Walk')?0.01:prov.includes('Auto')?0.08:0.21;
+return (km*f)/pax;
+}
+if(cat==='travel'){
+const mode=v['t-mode']||'Train (Sleeper)',pax=parseFloat(v['t-pax']||1);
+const b=mode.includes('Business')?240:mode.includes('Flight')?120:mode.includes('Cruise')||mode.includes('Ship')?80:mode.includes('Car (Petrol)')?60:mode.includes('Car (EV)')?20:mode.includes('Bus (AC)')?12:mode.includes('Bus')?8:15;
+return b*pax;
+}
+if(cat==='food'){
+const meal=v['f-meal']||'Vegetarian',c=parseFloat(v['f-count']||1);
+const d=(v['f-delivery']||'').includes('Delivery')?0.8:0;
+const b=meal.includes('Vegan')?1:meal.includes('Vegetarian')?1.5:meal.includes('Egg')?2.5:meal.includes('Seafood')?5:7;
+return (b+d)*c;
+}
+if(cat==='tech'){
+const h=parseFloat(v['tc-hrs']||4),r=v['tc-renew']||'No';
+return h*(r.includes('Yes')?.1:r.includes('Partially')?.25:.45);
+}
+const amt=parseFloat(v['sh-amt']||500);
+return (amt/100)*1.8*((v['sh-cond']||'').includes('Second')||(v['sh-cond']||'').includes('Rental')?.2:1);
+}
+
+// ══ SCREEN & TAB NAV ══
+function goto(id){
+document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+$(id).classList.add('on');
+}
+
+function switchTab(tab){
+const ALL=['ov','ac','add','hm','rw','ai','lb','mkt','esg'];
+ALL.forEach(t=>{
+const p=$('p-'+t), nt=$('t-'+t);
+if(p) p.classList.remove('on');
+if(nt) nt.classList.remove('on');
+});
+$('p-'+tab).classList.add('on');
+$('t-'+tab).classList.add('on');
+if(tab==='ov') renderOverview();
+else if(tab==='ac') renderActivity();
+else if(tab==='add') renderLogForm();
+else if(tab==='hm') renderHeatmap();
+else if(tab==='rw') renderRewards();
+else if(tab==='ai') initAIChat();
+else if(tab==='lb') renderLeaderboard();
+else if(tab==='mkt') renderMarket();
+else if(tab==='esg') renderESG();
+}
+
+// ══ AUTH ══
+function buyerLogin(){
+const cid=$('b-cid').value.trim(), dob=$('b-dob').value;
+if(!cid||!dob){toast('⚠️ Please fill all fields');return;}
+let u=DB.users.find(u=>u.id===cid);
+if(!u){u={id:cid,dob,name:'Citizen '+cid.slice(-5),emoji:'🧑',lat:19.076+(Math.random()-.5)*.1,lng:72.877+(Math.random()-.5)*.1};DB.users.push(u);}
+DB.currentUser=u; launchApp();
+}
+
+function sellerSendOTP(){
+const merchant=$('s-mname').value.trim(),phone=$('s-phone').value.trim(),
+item=$('s-item').value.trim(),amt=$('s-amount').value.trim(),cat=$('s-cat').value;
+if(!merchant||!phone||!item||!amt){toast('⚠️ Fill all fields');return;}
+const co2=estimateCO2(cat,item,parseFloat(amt));
+const g=grade(co2),r=reward(g),rec=genReceipt();
+DB.pendingSeller={merchant,phone,item,amt:parseFloat(amt),co2,cat,reward:r,receipt:rec};
+DB.otpCode=String(Math.floor(100000+Math.random()*900000));
+$('otp-phone').textContent=phone; $('otp-merchant').textContent=merchant;
+$('otp-item').textContent=item; $('otp-amount').textContent='₹'+amt;
+$('otp-co2').textContent=co2.toFixed(2)+' kg CO₂';
+$('otp-reward').textContent=r>0?'+₹'+r:'No reward (high emission)';
+$('otp-receipt').textContent=rec;
+$('otp-hint').textContent=DB.otpCode;
+['o1','o2','o3','o4','o5','o6'].forEach(id=>$(id).value='');
+goto('s-otp'); toast('📧 OTP sent to customer email!');
+}
+
+function onext(el,nid){if(el.value.length===1&&nid)$(nid).focus();}
+function oback(e,el,pid){if(e.key==='Backspace'&&!el.value&&pid)$(pid).focus();}
+
+function verifyOTP(){
+const entered=['o1','o2','o3','o4','o5','o6'].map(id=>$(id).value).join('');
+if(entered!==DB.otpCode){toast('❌ Invalid OTP');return;}
+goto('s-ai'); runAI();
+}
+
+// ══ AI PROCESSING ══
+function runAI(){
+const steps=['🔍 Scanning transaction data…','📊 Fetching GHG emission factors…','🧮 Calculating lifecycle CO₂…','📍 Classifying Scope 3 category…','🏆 Computing green health score…','✅ Transaction verified & committed!'];
+const c=$('ai-steps'); c.innerHTML='';
+steps.forEach((s,i)=>{
+setTimeout(()=>{
+const el=document.createElement('div');
+el.style.cssText='padding:8px 12px;margin-bottom:6px;border-radius:9px;background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.13);font-size:12px;opacity:0;transition:opacity .28s';
+el.textContent=s; c.appendChild(el);
+requestAnimationFrame(()=>requestAnimationFrame(()=>el.style.opacity='1'));
+if(i===steps.length-1) setTimeout(finalizeSeller,800);
+},i*550);
+});
+}
+
+function finalizeSeller(){
+const ps=DB.pendingSeller; if(!ps){goto('s-role');return;}
+const g=grade(ps.co2),r=reward(g);
+const tx={id:Date.now(),name:ps.item,cat:ps.cat,co2:ps.co2,grade:g,date:'Just now',reward:r,merchant:ps.merchant,receipt:ps.receipt,scope3:S3_MAP[ps.cat]||'Purchased goods & services',bagClaimed:false};
+DB.txs.unshift(tx); DB.rewards.balance+=r;
+if(r>0) DB.rewards.history.unshift({desc:ps.item+' via '+ps.merchant,amt:r,date:'Just now'});
+DB.pendingSeller=null;
+const bagCats=['grocery','shopping','food','ecommerce'];
+if(DB.currentUser){
+launchApp(); toast('✅ Transaction added!'+(r?' ₹'+r+' earned!':''));
+if(bagCats.includes(ps.cat)) setTimeout(()=>openBag(tx.id),600);
+}else{goto('s-role');toast('✅ Transaction sent to citizen!');}
+}
+
+// ══ APP LAUNCH ══
+function launchApp(){
+const u=DB.currentUser;
+$('uName').textContent=u.name; $('uId').textContent=u.id; $('uAvatar').textContent=u.emoji;
+goto('s-app'); switchTab('ov');
+}
+
+// ══ OVERVIEW ══
+function renderOverview(){
+const txs=DB.txs;
+const total=txs.reduce((a,t)=>a+t.co2,0);
+const score=Math.max(0,Math.min(100,Math.round(100-total/6)));
+const utecl=DB.utilities.reduce((a,u)=>a+u.elecKwh*ELEC_F,0);
+const utwat=DB.utilities.reduce((a,u)=>a+u.waterKl*WATER_F,0);
+
+$('ov-total').innerHTML=total.toFixed(1)+' <span style="font-size:14px;color:var(--dim);font-weight:400">kg CO₂</span>';
+$('score-val').textContent=score;
+$('hdr-rewards').textContent='₹'+DB.rewards.balance;
+$('ov-rewards').textContent='₹'+DB.rewards.balance;
+
+const arc=$('score-arc');
+arc.setAttribute('stroke-dasharray',(score/100*327)+' 327');
+arc.setAttribute('stroke',score>70?'#22c55e':score>40?'#f59e0b':'#ef4444');
+
+const lbl=$('score-lbl');
+if(score>80){lbl.className='pill pill-g';lbl.textContent='EXCELLENT';}
+else if(score>60){lbl.className='pill pill-y';lbl.textContent='GOOD';}
+else if(score>40){lbl.className='pill pill-y';lbl.textContent='AVERAGE';}
+else{lbl.className='pill pill-r';lbl.textContent='NEEDS WORK';}
+
+['shopping','travel','food','tech','grocery','ride'].forEach(c=>{
+const v=txs.filter(t=>t.cat===c).reduce((a,t)=>a+t.co2,0);
+const el=$('v-'+c); if(el) el.textContent=v.toFixed(1);
+});
+$('v-elec').textContent=utecl.toFixed(1);
+$('v-water').textContent=utwat.toFixed(1);
+
+renderUtilityTable();
+renderS3Bars(txs,utecl,utwat);
+}
+
+// ══ UTILITY TABLE ══
+function renderUtilityTable(){
+const tb=$('util-tbody'); if(!tb) return;
+const utils=DB.utilities;
+if(!utils.length){
+tb.innerHTML='<tr><td colspan="7" style="padding:14px 0;text-align:center;font-size:11px;color:var(--dim)">No data. Add manually or Auto-Fetch.</td></tr>';
+return;
+}
+let totalElec=0,totalWater=0;
+tb.innerHTML=utils.map((u,i)=>{
+const ec=(u.elecKwh*ELEC_F),wc=(u.waterKl*WATER_F),tot=ec+wc;
+totalElec+=ec; totalWater+=wc;
+const srcBadge=u.src==='govt'
+?'<span class="badge" style="background:rgba(34,197,94,.14);color:#22c55e">GOV</span>'
+:'<span class="badge" style="background:rgba(148,163,184,.1);color:#94a3b8">MAN</span>';
+return `<tr>
+<td style="font-size:11px;font-weight:600;color:var(--text)">${u.month}</td>
+<td style="color:#fbbf24">${u.elecKwh}</td>
+<td style="color:#fbbf24">${ec.toFixed(1)}</td>
+<td style="color:#60a5fa">${u.waterKl}</td>
+<td style="color:#60a5fa">${wc.toFixed(2)}</td>
+<td style="color:var(--accent);font-weight:700">${tot.toFixed(1)}</td>
+<td>${srcBadge}</td>
+</tr>`;
+}).join('');
+const combined=totalElec+totalWater;
+$('tot-elec').textContent=totalElec.toFixed(1)+' kg';
+$('tot-water').textContent=totalWater.toFixed(1)+' kg';
+$('tot-util').textContent=combined.toFixed(1)+' kg';
+}
+
+function updateUtilLabel(){
+const src=$('ut-src').value;
+$('ut-unit-lbl').textContent=src==='electricity'?'Units (kWh)':'Volume (KL)';
+$('ut-units').placeholder=src==='electricity'?'e.g. 220':'e.g. 9.5';
+}
+
+function addUtility(){
+const month=$('ut-month').value, src=$('ut-src').value;
+const units=parseFloat($('ut-units').value||0);
+const bill=parseFloat($('ut-bill').value||0);
+if(!units){toast('⚠️ Enter usage units');return;}
+const existing=DB.utilities.find(u=>u.month===month);
+if(existing){
+if(src==='electricity'){existing.elecKwh=units;existing.elecBill=bill;}
+else{existing.waterKl=units;existing.waterBill=bill;}
+existing.src='manual';
+}else{
+const entry={month,elecKwh:0,elecBill:0,waterKl:0,waterBill:0,src:'manual'};
+if(src==='electricity'){entry.elecKwh=units;entry.elecBill=bill;}
+else{entry.waterKl=units;entry.waterBill=bill;}
+DB.utilities.push(entry);
+DB.utilities.sort((a,b)=>a.month.localeCompare(b.month));
+}
+$('ut-units').value=''; $('ut-bill').value='';
+renderOverview(); toast('✅ '+month+' '+src+' data added!');
+}
+
+function autoFetchUtilities(){
+const btn=$('fetch-btn'); btn.style.opacity='.5'; btn.style.pointerEvents='none';
+$('fetch-icon').textContent='⏳'; $('fetch-txt').textContent='Fetching…';
+const steps=['Connecting to BESCOM API…','Authenticating Aadhaar link…','Pulling BWSSB water data…','Processing emission factors…'];
+let i=0;
+const interval=setInterval(()=>{
+toast('🏛️ '+steps[i++]);
+if(i>=steps.length){
+clearInterval(interval);
+// Simulate fresh govt data
+const newMonth='Apr 2026';
+if(!DB.utilities.find(u=>u.month===newMonth)){
+DB.utilities.push({month:newMonth,elecKwh:219,elecBill:1752,waterKl:8.5,waterBill:425,src:'govt'});
+}else{
+const u=DB.utilities.find(u=>u.month===newMonth);
+u.elecKwh=219;u.elecBill=1752;u.waterKl=8.5;u.waterBill=425;u.src='govt';
+}
+btn.style.opacity='1'; btn.style.pointerEvents='auto';
+$('fetch-icon').textContent='✅'; $('fetch-txt').textContent='Synced!';
+$('gov-status').style.display='';
+$('gov-sub').textContent='BESCOM + BWSSB · Apr 2026 synced · '+new Date().toLocaleTimeString();
+renderOverview(); toast('✅ Government data fetched successfully!');
+setTimeout(()=>{ $('fetch-icon').textContent='⚡'; $('fetch-txt').textContent='Govt Auto-Fetch'; },4000);
+}
+},900);
+}
+
+// ══ SCOPE 3 BARS ══
+function renderS3Bars(txs,utecl,utwat){
+const el=$('s3-bars'); if(!el) return;
+const s3groups={};
+txs.forEach(t=>{const k=t.scope3||'Other';if(!s3groups[k])s3groups[k]=0;s3groups[k]+=t.co2;});
+s3groups['Stationary energy (Scope 2)']=utecl+utwat;
+const totalAll=Object.values(s3groups).reduce((a,b)=>a+b,0)||1;
+el.innerHTML=Object.entries(s3groups).map(([label,co2])=>{
+const pct=Math.round((co2/totalAll)*100);
+return `<div>
+<div style="display:flex;justify-content:space-between;margin-bottom:3px">
+<span style="font-size:11px;color:var(--dim);font-weight:600">${label}</span>
+<span style="font-family:'JetBrains Mono';font-size:10px;color:var(--purple)">${co2.toFixed(1)} kg</span>
+</div>
+<div style="background:rgba(255,255,255,.05);border-radius:3px;height:4px;overflow:hidden">
+<div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#a78bfa,#7c3aed);border-radius:3px;transition:width .7s ease"></div>
+</div>
+</div>`;
+}).join('');
+}
+
+// ══ ACTIVITY ══
+function renderActivity(){
+const list=$('activity-list');
+$('tx-count').textContent=DB.txs.length+' items';
+if(!DB.txs.length){list.innerHTML='<div style="padding:40px;text-align:center;color:var(--dim);font-size:13px">No transactions yet</div>';return;}
+list.innerHTML=DB.txs.map(t=>{
+const m=CAT_META[t.cat]||{ico:'📄',col:'#94a3b8'};
+const gc=t.grade==='A'?'pill-g':t.grade==='B'?'pill-y':'pill-r';
+const showBag=['grocery','shopping','food'].includes(t.cat)&&!t.bagClaimed;
+return `<div class="tx-row">
+<div class="tx-icon" style="background:${m.col}18">${m.ico}</div>
+<div style="flex:1;min-width:0">
+<div style="font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.name}</div>
+<div style="font-size:10px;color:var(--dim);margin-top:2px">${t.date}${t.merchant?' · '+t.merchant:''}</div>
+${t.receipt?`<div style="font-family:'JetBrains Mono';font-size:9px;color:rgba(56,189,248,.7);margin-top:2px">#${t.receipt}</div>`:''}
+${t.scope3?`<div style="margin-top:4px"><span class="pill pill-p" style="font-size:8px">Scope 3 · ${t.scope3}</span></div>`:''}
+${showBag?`<button onclick="claimBagTx(${t.id})" style="margin-top:7px;background:rgba(34,197,94,.1);border:1px dashed rgba(34,197,94,.35);border-radius:8px;color:var(--accent);font-size:11px;font-weight:700;padding:5px 10px;cursor:pointer;font-family:'Outfit',sans-serif;display:inline-flex;align-items:center;gap:5px">🛍️ Eco bag? Claim points</button>`:''}
+${t.bagClaimed&&['grocery','shopping','food'].includes(t.cat)?`<div style="margin-top:5px;font-size:10px;color:var(--accent)">✅ Bag reward claimed</div>`:''}
+</div>
+<div style="text-align:right;flex-shrink:0">
+<div style="font-family:'JetBrains Mono';font-size:12px;font-weight:700">${t.co2.toFixed(1)} kg</div>
+<span class="pill ${gc}" style="margin-top:3px;display:inline-flex">Grade ${t.grade}</span>
+${t.reward>0?`<div style="font-size:10px;color:var(--accent);margin-top:3px;font-weight:700">+₹${t.reward}</div>`:''}
+</div>
+</div>`;
+}).join('');
+}
+
+// ══ LOG FORM ══
+let logCat='grocery';
+function setCat(cat){
+logCat=cat;
+document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('on'));
+$('lt-'+cat).classList.add('on');
+renderLogForm();
+}
+
+function renderLogForm(){
+const fields=LOG_FIELDS[logCat]||LOG_FIELDS.shopping;
+const labels={grocery:'🛒 Grocery',ecommerce:'📦 E-Commerce',ride:'🚗 Ride (Ola/Uber)',travel:'✈️ Travel',food:'🍽️ Dining',tech:'💻 Digital',shopping:'🛍️ Retail'};
+let h=`<div style="margin-bottom:16px;padding-top:4px"><div style="font-size:14px;font-weight:700">${labels[logCat]||logCat}</div><p style="font-size:10px;color:var(--dim);margin-top:2px">AI calculates CO₂ footprint automatically</p></div><div style="display:flex;flex-direction:column;gap:11px">`;
+fields.forEach(f=>{
+h+=`<div><span class="lbl">${f.lbl}</span>`;
+if(f.type==='select') h+=`<select class="inp" id="${f.id}">${f.opts.map(o=>`<option>${o}</option>`).join('')}</select>`;
+else h+=`<input class="inp" id="${f.id}" type="${f.type||'text'}" placeholder="${f.ph||''}">`;
+h+=`</div>`;
+});
+h+=`</div><button class="btn btn-p btn-w" style="margin-top:18px" onclick="submitLog()">🤖 Calculate &amp; Log Emission</button>`;
+$('log-form').innerHTML=h;
+}
+
+function submitLog(){
+const fields=LOG_FIELDS[logCat]||[];
+const v={}; fields.forEach(f=>{const el=$(f.id);if(el)v[f.id]=el.value;});
+let name='';
+if(logCat==='grocery') name=(v['g-items']||'Groceries')+' @ '+(v['g-store']||'Store');
+else if(logCat==='ecommerce') name=(v['ec-product']||'Package')+' via '+(v['ec-platform']||'Online');
+else if(logCat==='ride') name=(v['r-provider']||'Ride')+' '+(v['r-km']||'?')+'km';
+else if(logCat==='travel') name=(v['t-from']||'?')+' → '+(v['t-to']||'?')+' ('+(v['t-mode']||'')+')';
+else if(logCat==='food') name=(v['f-meal']||'Meal')+' at '+(v['f-place']||'Restaurant');
+else if(logCat==='tech') name=v['tc-item']||'Digital Use';
+else name=v['sh-item']||'Item';
+
+const co2=calcCO2(logCat,v);
+const g=grade(co2),r=reward(g);
+const mapCat=logCat==='ecommerce'?'shopping':logCat;
+const id=Date.now(), rec=genReceipt();
+DB.txs.unshift({id,name,cat:mapCat,co2,grade:g,date:'Just now',reward:r,merchant:'Manual Log',receipt:rec,scope3:S3_MAP[logCat]||'Purchased goods & services',bagClaimed:false});
+DB.rewards.balance+=r;
+if(r>0) DB.rewards.history.unshift({desc:name,amt:r,date:'Just now'});
+toast(`✅ ${co2.toFixed(1)} kg CO₂ · Grade ${g}${r?' · +₹'+r:''}`);
+const bagCats=['grocery','ecommerce','shopping','food'];
+if(bagCats.includes(logCat)) setTimeout(()=>openBag(id),400);
+else switchTab('ac');
+}
+
+// ══ HEATMAP ══
+const ZONES=[
+{n:'Bandra West',v:22,t:'↓ -3%'},{n:'Andheri East',v:67,t:'↑ +5%'},
+{n:'Colaba',v:45,t:'→ 0%'},{n:'Powai',v:38,t:'↓ -1%'},
+{n:'Thane',v:81,t:'↑ +8%'},{n:'Navi Mumbai',v:52,t:'→ +1%'},
+{n:'Borivali',v:29,t:'↓ -4%'},{n:'Dadar',v:74,t:'↑ +6%'},
+{n:'Kurla',v:61,t:'↑ +2%'},{n:'Malad',v:33,t:'↓ -2%'},
+];
+
+function renderHeatmap(){
+const hmap=$('hmap'); if(!hmap) return;
+let h='';
+for(let i=0;i<100;i++){
+const v=Math.random();
+const c=v<.33?`rgba(34,197,94,${.25+v*1.4})`:v<.66?`rgba(245,158,11,${.3+v*.7})`:`rgba(239,68,68,${.3+v*.7})`;
+h+=`<div class="hmap-cell" style="background:${c}" title="${Math.round(v*120)} kg CO₂"></div>`;
+}
+hmap.innerHTML=h;
+const zl=$('zone-list');
+zl.innerHTML='<div style="font-weight:700;font-size:13px;margin-bottom:9px">Zone Breakdown</div>'+
+ZONES.map(z=>{
+const cl=z.v<35?'pill-g':z.v<65?'pill-y':'pill-r';
+const bar=Math.round(z.v/1.2);
+return `<div class="card" style="margin-bottom:8px;padding:12px">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+<div style="font-weight:700;font-size:12px">${z.n}</div>
+<div style="display:flex;align-items:center;gap:6px"><span class="pill ${cl}">${z.v} kg</span><span style="font-size:10px;color:var(--dim)">${z.t}</span></div>
+</div>
+<div style="background:rgba(255,255,255,.05);border-radius:3px;height:4px;overflow:hidden">
+<div style="height:100%;width:${bar}%;background:${z.v<35?'#22c55e':z.v<65?'#f59e0b':'#ef4444'};border-radius:3px;transition:width .6s"></div>
+</div>
+</div>`;
+}).join('');
+}
+
+// ══ REWARDS ══
+function renderRewards(){
+const rb=$('rw-balance'); if(rb) rb.textContent='₹'+DB.rewards.balance;
+const rh=$('rw-history'); if(!rh) return;
+if(!DB.rewards.history.length){rh.innerHTML='';return;}
+rh.innerHTML='<div style="font-weight:700;font-size:13px;margin-bottom:9px">Reward History</div>'+
+DB.rewards.history.map(r=>{
+const neg=r.amt<0;
+return `<div class="tx-row"><div class="tx-icon">${neg?'💸':'🌱'}</div>
+<div style="flex:1"><div style="font-size:13px;font-weight:600">${r.desc}</div><div style="font-size:10px;color:var(--dim)">${r.date}</div></div>
+<div style="font-family:'JetBrains Mono';font-weight:700;color:${neg?'var(--red)':'var(--accent)'};">${neg?'':'+'}₹${Math.abs(r.amt)}</div>
+</div>`;
+}).join('');
+}
+
+// ══ MODALS ══
+function openModal(id){
+if(id==='modal-withdraw'){
+$('w-avail').textContent='₹'+DB.rewards.balance;
+$('w-amt').value=''; setWOpt('upi');
+}
+$(id).classList.add('on');
+}
+function closeModal(id){$(id).classList.remove('on');}
+
+// ══ BAG SYSTEM ══
+let bagOpt='paper', bagVerified=false, bagTxId=null;
+
+function openBag(txId){
+bagOpt='paper'; bagVerified=false; bagTxId=txId;
+$('bag-s1').style.display=''; $('bag-s2').style.display='none';
+$('bag-preview').style.display='none'; $('bag-zone-inner').style.display='';
+$('bag-zone').classList.remove('done'); $('bag-verify').style.display='none';
+$('bag-file').value='';
+document.querySelectorAll('.bag-opt').forEach(o=>o.classList.remove('sel'));
+$('bo-paper').classList.add('sel');
+$('bag-photo-sec').style.display='';
+updateBagTotal(); openModal('modal-bag');
+}
+
+function setBagOpt(opt){
+bagOpt=opt;
+document.querySelectorAll('.bag-opt').forEach(o=>o.classList.remove('sel'));
+$('bo-'+opt).classList.add('sel');
+$('bag-photo-sec').style.display=(opt==='plastic'||opt==='none')?'none':'';
+if(opt==='plastic'||opt==='none') bagVerified=false;
+updateBagTotal();
+}
+
+function handleBagPhoto(inp){
+if(!inp.files||!inp.files[0]) return;
+const r2=new FileReader();
+r2.onload=e=>{
+$('bag-preview').src=e.target.result; $('bag-preview').style.display='block';
+$('bag-zone-inner').style.display='none'; $('bag-zone').classList.add('done');
+const bv=$('bag-verify'); bv.style.display='';
+$('bag-v-icon').textContent='⏳'; $('bag-v-msg').textContent='AI verifying…';
+$('bag-v-sub').textContent='Analysing image'; $('bag-v-bonus').style.display='none';
+setTimeout(()=>{
+bagVerified=true;
+$('bag-v-icon').textContent='✅';
+$('bag-v-msg').textContent=bagOpt==='own'?'Reusable bag confirmed!':'Paper bag verified!';
+$('bag-v-sub').textContent='Photo bonus unlocked 🎉';
+$('bag-v-bonus').style.display='inline-flex';
+$('bag-v-bonus').textContent='+₹'+(bagOpt==='own'?10:5)+' bonus';
+updateBagTotal();
+},1800);
+};
+r2.readAsDataURL(inp.files[0]);
+}
+
+function updateBagTotal(){
+const base={paper:15,own:25,plastic:0,none:0};
+const total=(base[bagOpt]||0)+(bagVerified?(bagOpt==='own'?10:5):0);
+$('bag-total').textContent=total>0?'+₹'+total:'₹0';
+}
+
+function claimBag(){
+const base={paper:15,own:25,plastic:0,none:0};
+const b=base[bagOpt]||0, bonus=bagVerified?(bagOpt==='own'?10:5):0, total=b+bonus;
+if(bagOpt==='plastic'&&bagTxId){const tx=DB.txs.find(t=>t.id===bagTxId);if(tx){tx.co2+=0.6;}}
+if(total>0){
+DB.rewards.balance+=total;
+const desc=bagOpt==='own'?'Reusable bag':bagOpt==='paper'?'Paper bag':'Eco bag';
+DB.rewards.history.unshift({desc:desc+(bagVerified?' (photo verified)':''),amt:total,date:'Just now'});
+}
+if(bagTxId){const tx=DB.txs.find(t=>t.id===bagTxId);if(tx)tx.bagClaimed=true;}
+const msgs={paper:'Choosing paper over plastic is a meaningful step. 🌿',own:'Bringing your own bag is the greenest choice. Superstar! 🌟',plastic:'Next time try paper or your own bag for bonus points!',none:'No bag needed — smart and low-waste!'};
+const icons={paper:'🛍️',own:'🎒',plastic:'😬',none:'✨'};
+$('bag-s1').style.display='none'; $('bag-s2').style.display='';
+$('bag-cel-icon').textContent=icons[bagOpt];
+$('bag-cel-msg').textContent=msgs[bagOpt];
+$('bag-cel-amt').textContent=total>0?'+₹'+total:'₹0';
+$('bag-cel-sub').textContent=b>0?(bagVerified?'Base ₹'+b+' + Photo ₹'+bonus:'Base reward'):'Keep choosing eco options!';
+if(total>0) launchConfetti();
+renderOverview();
+}
+
+function closeBagCelebrate(){closeModal('modal-bag');renderOverview();switchTab('ov');}
+function claimBagTx(txId){const tx=DB.txs.find(t=>t.id===txId);if(tx)tx.bagClaimed=true;openBag(txId);}
+
+function launchConfetti(){
+const c=$('bag-confetti'); c.innerHTML='';
+const cols=['#22c55e','#4ade80','#86efac','#fbbf24','#f472b6','#38bdf8'];
+for(let i=0;i<24;i++){
+const p=document.createElement('div'); p.className='confetti-p';
+p.style.cssText=`left:${Math.random()*100}%;top:-8px;background:${cols[~~(Math.random()*cols.length)]};animation-delay:${Math.random()*.5}s;animation-duration:${1+Math.random()*.7}s;width:${6+Math.random()*7}px;height:${6+Math.random()*7}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+c.appendChild(p);
+}
+}
+
+// ══ WITHDRAW ══
+let wOpt='upi';
+function setWOpt(opt){
+wOpt=opt;
+document.querySelectorAll('.w-opt').forEach(o=>o.classList.remove('sel'));
+$('wo-'+opt).classList.add('sel');
+renderWithdrawDetail();
+}
+function openModal_withdraw(){
+$('w-avail').textContent='₹'+DB.rewards.balance;
+$('w-amt').value=''; setWOpt('upi');
+openModal('modal-withdraw');
+}
+function renderWithdrawDetail(){
+const c=$('w-detail');
+if(wOpt==='upi') c.innerHTML=`<div style="margin-bottom:13px"><span class="lbl">UPI ID / Phone</span><input class="inp" placeholder="yourname@ybl"></div>`;
+else if(wOpt==='bank') c.innerHTML=`<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:13px"><div><span class="lbl">Account Number</span><input class="inp" placeholder="Bank account number"></div><div><span class="lbl">IFSC Code</span><input class="inp" placeholder="e.g. SBIN0001234"></div></div>`;
+else c.innerHTML=`<div class="card" style="margin-bottom:13px;padding:13px;text-align:center;background:rgba(34,197,94,.06);border-color:rgba(34,197,94,.2)"><div style="font-size:20px;margin-bottom:6px">🎁</div><div style="font-size:12px">Voucher emailed to your registered address. Redeemable at 200+ eco-partner stores.</div></div>`;
+}
+function processWithdraw(){
+const amt=parseFloat($('w-amt').value);
+if(!amt||amt<=0){toast('⚠️ Enter valid amount');return;}
+if(amt>DB.rewards.balance){toast('⚠️ Insufficient balance');return;}
+DB.rewards.balance-=amt;
+DB.rewards.history.unshift({desc:'Withdrawal via '+wOpt.toUpperCase(),amt:-amt,date:'Just now'});
+closeModal('modal-withdraw'); renderOverview(); renderRewards();
+toast('✅ ₹'+amt+' withdrawal initiated!');
+}
+
+// ══════════════════════════════════════
+// AI CARBON ADVISOR
+// ══════════════════════════════════════
+const AI_RESPONSES = {
+tips: (ctx) => `Based on your data, here are your top 3 actions this week:\n\n🌱 **Switch to Metro or Ola Electric** for daily commute — your ride emissions (${ctx.rideCO2.toFixed(1)} kg) can drop by up to 80%.\n\n🛒 **Choose organic at ${ctx.topMerchant || 'Fresh Mart'}** — your grocery footprint is ${ctx.groceryCO2.toFixed(1)} kg, and organic items cut 20–40%.\n\n⚡ **Reduce peak-hour electricity by 1 hour/day** — your current monthly usage (${ctx.elecKwh} kWh) adds ${ctx.elecCO2.toFixed(0)} kg CO₂. Solar water heating could cut 30%.`,
+analyse: (ctx) => `📊 **Your Emission Breakdown Analysis**\n\nTotal tracked: **${ctx.total.toFixed(1)} kg CO₂**\n\n🔴 Highest: Tech/Digital at **${ctx.techCO2.toFixed(1)} kg** — driven by the MacBook Pro M4 (manufacturing lifecycle emissions are significant).\n\n🟡 Second: Utilities — **${ctx.utilCO2.toFixed(1)} kg** from electricity + water.\n\n🟢 Best: Travel at **${ctx.rideCO2.toFixed(1)} kg** — you're already making eco-conscious transport choices.\n\nYour Scope 3 emissions are **${ctx.scope3Pct}% of total** — above average for Mumbai residents.`,
+offsets: (ctx) => `🌳 **Offset Recommendations for you**\n\nYou need to offset **${ctx.total.toFixed(0)} kg CO₂** to reach net zero this cycle.\n\nAt current rates (₹85/kg), that's approximately **₹${Math.round(ctx.total*85).toLocaleString()}**.\n\nTop picks for your profile:\n1. **Sundarbans Mangrove Restoration** — nearest to Mumbai, Gold Standard certified, ₹72/kg\n2. **Gujarat Wind Farm Project** — offsets grid electricity perfectly, ₹65/kg\n3. **Himalayan Community Forest** — biodiversity co-benefits, ₹91/kg\n\nYou can buy directly in the 🌳 Offsets tab.`,
+grade: (ctx) => `📈 **Path to ESG Grade A**\n\nYour current score: **${ctx.score}/100** (${ctx.score>80?'Grade A ✅':ctx.score>60?'Grade B — close!':'Grade C — needs work'})\n\nTo reach Grade A (score > 80), you need to cut **${Math.max(0, ctx.total - ctx.target).toFixed(0)} kg** from your footprint.\n\n**Quickest wins:**\n• Replace 1 flight with train = −100 to 120 kg\n• Switch to EV/Metro for rides = −${(ctx.rideCO2*0.8).toFixed(0)} kg\n• LED + solar geyser = −35 kg from electricity\n• Vegan meals 3x/week = −${(ctx.foodCO2*0.4).toFixed(0)} kg`,
+benchmark: (ctx) => `🇮🇳 **India Benchmark Comparison**\n\nAverage Indian citizen: **1,900 kg CO₂/year** (~158 kg/month)\nMumbai urban average: **2,200 kg/year** (~183 kg/month)\n**Your tracked total: ${ctx.total.toFixed(1)} kg**\n\n${ctx.total < 158 ? '🎉 You are below the national monthly average! You rank in the top 15% of tracked Climfra users.' : ctx.total < 183 ? '👍 Below Mumbai average but above national average. A few more green choices will put you in the top quartile.' : '⚠️ Above Mumbai city average. Focus on tech and travel categories to bring this down significantly.'}\n\nGlobal sustainable target: **180 kg/month per person** (Paris Agreement pathway).`
+};
+
+let aiHistory = [];
+let aiInitDone = false;
+
+function getAIContext() {
+const txs = DB.txs;
+const total = txs.reduce((a,t)=>a+t.co2,0);
+const rideCO2 = txs.filter(t=>t.cat==='ride'||t.cat==='travel').reduce((a,t)=>a+t.co2,0);
+const groceryCO2 = txs.filter(t=>t.cat==='grocery').reduce((a,t)=>a+t.co2,0);
+const techCO2 = txs.filter(t=>t.cat==='tech').reduce((a,t)=>a+t.co2,0);
+const foodCO2 = txs.filter(t=>t.cat==='food').reduce((a,t)=>a+t.co2,0);
+const elecKwh = DB.utilities.reduce((a,u)=>a+u.elecKwh,0);
+const elecCO2 = elecKwh * ELEC_F;
+const waterCO2 = DB.utilities.reduce((a,u)=>a+u.waterKl,0) * WATER_F;
+const utilCO2 = elecCO2 + waterCO2;
+const score = Math.max(0, Math.min(100, Math.round(100 - total/6)));
+const scope3Pct = total > 0 ? Math.round((total - utilCO2) / total * 100) : 0;
+const merchants = txs.map(t=>t.merchant).filter(Boolean);
+const topMerchant = merchants[0] || 'your store';
+return { total, rideCO2, groceryCO2, techCO2, foodCO2, elecKwh, elecCO2, utilCO2, score, scope3Pct, topMerchant, target: 100 };
+}
+
+function initAIChat() {
+if (aiInitDone) return;
+aiInitDone = true;
+const ctx = getAIContext();
+const greeting = `👋 Hi ${DB.currentUser?.name?.split(' ')[0] || 'there'}! I'm your Climfra AI Advisor.\n\nYour current footprint is **${ctx.total.toFixed(1)} kg CO₂** with a health score of **${ctx.score}/100**.\n\nAsk me anything about your emissions, or tap a quick prompt above to get started.`;
+renderAIMsg('assistant', greeting);
+}
+
+function aiQuick(prompt) { $('ai-input').value = prompt; sendAI(); }
+
+function sendAI() {
+const input = $('ai-input');
+const msg = input.value.trim();
+if (!msg) return;
+input.value = '';
+renderAIMsg('user', msg);
+const ctx = getAIContext();
+const low = msg.toLowerCase();
+let reply;
+if (low.includes('tip') || low.includes('reduc') || low.includes('week') || low.includes('how')) reply = AI_RESPONSES.tips(ctx);
+else if (low.includes('analys') || low.includes('worst') || low.includes('breakdown')) reply = AI_RESPONSES.analyse(ctx);
+else if (low.includes('offset') || low.includes('buy') || low.includes('market')) reply = AI_RESPONSES.offsets(ctx);
+else if (low.includes('grade') || low.includes('score') || low.includes('esg') || low.includes('a')) reply = AI_RESPONSES.grade(ctx);
+else if (low.includes('bench') || low.includes('average') || low.includes('india') || low.includes('compar')) reply = AI_RESPONSES.benchmark(ctx);
+else reply = `Thanks for your question! Based on your **${ctx.total.toFixed(1)} kg CO₂** footprint, I'd suggest focusing on your top emission category. Your health score is **${ctx.score}/100**.\n\nTry one of the quick prompts above for detailed personalised advice, or ask me something more specific like "How do I reduce my electricity footprint?"`;
+
+// Typing indicator
+const typing = document.createElement('div');
+typing.id = 'ai-typing';
+typing.style.cssText = 'padding:10px 13px;border-radius:14px 14px 14px 4px;background:var(--card);border:1px solid var(--border);font-size:12px;color:var(--dim);max-width:85%;animation:blink 1s infinite';
+typing.textContent = '● ● ●';
+$('ai-chat-window').appendChild(typing);
+scrollAIChat();
+setTimeout(() => {
+typing.remove();
+renderAIMsg('assistant', reply);
+}, 900 + Math.random() * 600);
+}
+
+function renderAIMsg(role, text) {
+const isUser = role === 'user';
+const el = document.createElement('div');
+el.style.cssText = `display:flex;justify-content:${isUser?'flex-end':'flex-start'};margin-bottom:4px`;
+const formatted = text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+el.innerHTML = `<div style="padding:11px 13px;border-radius:${isUser?'14px 14px 4px 14px':'14px 14px 14px 4px'};background:${isUser?'var(--accent)':'var(--card)'};border:1px solid ${isUser?'transparent':'var(--border)'};color:${isUser?'#000':'var(--text)'};font-size:12px;line-height:1.55;max-width:88%">${formatted}</div>`;
+$('ai-chat-window').appendChild(el);
+scrollAIChat();
+}
+
+function scrollAIChat() {
+const w = $('ai-chat-window');
+setTimeout(() => { w.scrollTop = w.scrollHeight; }, 50);
+}
+
+// ══════════════════════════════════════
+// LEADERBOARD
+// ══════════════════════════════════════
+const LB_DATA = {
+city: [
+{rank:1,name:'Priya Mehta',ward:'Bandra West',co2:12.4,score:98,badge:'🥇',trend:'↓'},
+{rank:2,name:'Arjun Nair',ward:'Powai',co2:18.7,score:97,badge:'🥈',trend:'↓'},
+{rank:3,name:'Sunita Rao',ward:'Borivali',co2:21.3,score:96,badge:'🥉',trend:'↓'},
+{rank:4,name:'Mohammed Farooq',ward:'Colaba',co2:24.8,score:95,badge:'🌿',trend:'↑'},
+{rank:5,name:'Kavya Iyer',ward:'Malad',co2:26.1,score:94,badge:'🌿',trend:'↓'},
+{rank:6,name:'Rohit Sharma',ward:'Andheri East',co2:31.2,score:91,badge:'🌱',trend:'→'},
+{rank:7,name:'Deepa Pillai',ward:'Navi Mumbai',co2:34.5,score:89,badge:'🌱',trend:'↑'},
+{rank:47,name:'Aisha Al-Sayed',ward:'Mumbai Central',co2:73.0,score:88,badge:'👤',trend:'↓',isYou:true},
+],
+ward: [
+{rank:1,name:'Aisha Al-Sayed',ward:'Mumbai Central',co2:73.0,score:88,badge:'🥇',isYou:true},
+{rank:2,name:'Raj Kumar',ward:'Mumbai Central',co2:78.2,score:85,badge:'🥈'},
+{rank:3,name:'Neha Joshi',ward:'Mumbai Central',co2:82.1,score:83,badge:'🥉'},
+{rank:4,name:'Vikram Singh',ward:'Mumbai Central',co2:91.5,score:80,badge:'🌿'},
+{rank:5,name:'Anita Desai',ward:'Mumbai Central',co2:104.3,score:76,badge:'🌱'},
+],
+friends: [
+{rank:1,name:'Priya (Friend)',ward:'Bandra',co2:18.4,score:97,badge:'🥇'},
+{rank:2,name:'Rahul (Friend)',ward:'Thane',co2:45.2,score:90,badge:'🥈'},
+{rank:3,name:'Aisha Al-Sayed',ward:'Mumbai Central',co2:73.0,score:88,badge:'🥉',isYou:true},
+]
+};
+let lbFilter = 'city';
+
+function setLBFilter(f) {
+lbFilter = f;
+['city','ward','friends'].forEach(x => { $('lb-f-'+x).classList.toggle('on', x===f); });
+renderLeaderboard();
+}
+
+function renderLeaderboard() {
+const txs = DB.txs;
+const total = txs.reduce((a,t)=>a+t.co2,0);
+const score = Math.max(0, Math.min(100, Math.round(100 - total/6)));
+$('lb-co2').textContent = total.toFixed(1) + ' kg';
+$('lb-score').textContent = score;
+const data = LB_DATA[lbFilter];
+$('lb-list').innerHTML = data.map(p => {
+const isYou = p.isYou;
+return `<div style="display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--border);${isYou?'background:rgba(34,197,94,.04);border-radius:12px;padding:11px;margin-bottom:4px':''}">
+<div style="font-size:20px;width:28px;text-align:center">${p.badge}</div>
+<div style="flex:1;min-width:0">
+<div style="font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px">${p.name} ${isYou?'<span class="pill pill-g" style="font-size:8px">YOU</span>':''}</div>
+<div style="font-size:10px;color:var(--dim)">${p.ward}</div>
+</div>
+<div style="text-align:right;flex-shrink:0">
+<div style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:var(--warn)">${p.co2.toFixed(1)} kg</div>
+<div style="font-size:10px;color:var(--accent);margin-top:1px">Score ${p.score}</div>
+</div>
+<div style="font-size:16px;color:${p.trend==='↓'?'#22c55e':p.trend==='↑'?'#ef4444':'#94a3b8'}">${p.trend||'→'}</div>
+</div>`;
+}).join('');
+}
+
+// ══════════════════════════════════════
+// CARBON OFFSET MARKETPLACE
+// ══════════════════════════════════════
+const OFFSET_PROJECTS = [
+{id:'p1',name:'Sundarbans Mangrove Restoration',loc:'West Bengal, India',type:'Blue Carbon',cert:'Gold Standard',price:72,co2_per_credit:1,icon:'🌊',desc:'Restores 2,400 ha of mangrove forest, protecting 15,000 coastal families from cyclones while sequestering carbon.',avail:true,co2_offset:0},
+{id:'p2',name:'Gujarat Wind Farm',loc:'Gujarat, India',type:'Renewable Energy',cert:'Verra VCS',price:65,co2_per_credit:1,icon:'💨',desc:'620 MW wind energy project replacing coal grid power. Directly offsets Scope 2 electricity emissions.',avail:true,co2_offset:0},
+{id:'p3',name:'Himalayan Community Forest',loc:'Uttarakhand, India',type:'REDD+ Forestry',cert:'Gold Standard',price:91,co2_per_credit:1,icon:'🏔️',desc:'Protects 18,000 ha of threatened Himalayan forest. Community-led with biodiversity co-benefits.',avail:true,co2_offset:0},
+{id:'p4',name:'Bihar Biogas Programme',loc:'Bihar, India',type:'Clean Cooking',cert:'Verra VCS',price:55,co2_per_credit:1,icon:'🔥',desc:'Provides clean biogas cookstoves to 80,000 rural households, replacing firewood and reducing indoor air pollution.',avail:true,co2_offset:0},
+{id:'p5',name:'Rajasthan Solar Microgrids',loc:'Rajasthan, India',type:'Renewable Energy',cert:'CDM / UN',price:78,co2_per_credit:1,icon:'☀️',desc:'Off-grid solar for 300 villages currently without reliable electricity. UN Clean Development Mechanism certified.',avail:true,co2_offset:0},
+];
+let purchasedOffsets = 0; // kg total
+
+function renderMarket() {
+const txs = DB.txs;
+const totalCO2 = txs.reduce((a,t)=>a+t.co2,0) + DB.utilities.reduce((a,u)=>a+(u.elecKwh*ELEC_F)+(u.waterKl*WATER_F),0);
+const pct = Math.min(100, Math.round((purchasedOffsets / Math.max(1, totalCO2)) * 100));
+$('mkt-co2').textContent = Math.max(0, totalCO2 - purchasedOffsets).toFixed(1) + ' kg';
+$('mkt-bar').style.width = pct + '%';
+$('mkt-pct').textContent = pct + '% offset';
+$('mkt-status').textContent = pct >= 100 ? '🎉 You are Net Zero this cycle!' : `Offset ${purchasedOffsets.toFixed(0)} of ${totalCO2.toFixed(0)} kg CO₂`;
+
+$('mkt-list').innerHTML = OFFSET_PROJECTS.map(p => `
+<div class="card" style="margin-bottom:10px;padding:15px">
+<div style="display:flex;align-items:flex-start;gap:11px;margin-bottom:11px">
+<div style="font-size:28px;flex-shrink:0">${p.icon}</div>
+<div style="flex:1;min-width:0">
+<div style="font-weight:700;font-size:13px">${p.name}</div>
+<div style="font-size:10px;color:var(--dim);margin-top:2px">📍 ${p.loc}</div>
+<div style="display:flex;gap:5px;margin-top:5px;flex-wrap:wrap">
+<span class="pill pill-g" style="font-size:8px">${p.type}</span>
+<span class="pill pill-b" style="font-size:8px">✓ ${p.cert}</span>
+</div>
+</div>
+<div style="text-align:right;flex-shrink:0">
+<div style="font-family:'JetBrains Mono';font-size:15px;font-weight:700;color:var(--accent)">₹${p.price}</div>
+<div style="font-size:9px;color:var(--dim)">per kg CO₂</div>
+</div>
+</div>
+<div style="font-size:11px;color:var(--dim);line-height:1.5;margin-bottom:12px">${p.desc}</div>
+${p.co2_offset > 0 ? `<div style="margin-bottom:9px;padding:7px 10px;border-radius:8px;background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.15);font-size:11px;color:var(--accent);font-weight:700">✅ You've offset ${p.co2_offset} kg via this project</div>` : ''}
+<div style="display:flex;gap:7px;align-items:center">
+<input type="number" id="qty-${p.id}" placeholder="kg to offset" min="1" style="flex:1;padding:9px 11px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:var(--rm);color:var(--text);font-size:13px;font-family:'Outfit',sans-serif;outline:none" oninput="updateOffsetCost('${p.id}',${p.price})">
+<div style="text-align:center;min-width:50px"><div id="cost-${p.id}" style="font-family:'JetBrains Mono';font-size:11px;color:var(--warn);font-weight:700">₹0</div><div style="font-size:8px;color:var(--dim)">total</div></div>
+<button class="btn btn-p" style="padding:9px 14px;font-size:12px" onclick="buyOffset('${p.id}',${p.price})">Buy →</button>
+</div>
+</div>`).join('');
+}
+
+function updateOffsetCost(pid, price) {
+const qty = parseFloat($('qty-'+pid).value) || 0;
+$('cost-'+pid).textContent = '₹' + (qty * price).toLocaleString();
+}
+
+function buyOffset(pid, price) {
+const qty = parseFloat($('qty-'+pid).value) || 0;
+if (!qty || qty <= 0) { toast('⚠️ Enter kg amount to offset'); return; }
+const cost = qty * price;
+if (cost > DB.rewards.balance * 10) { // allow spend beyond rewards — it's real money
+// just proceed for demo
+}
+const proj = OFFSET_PROJECTS.find(p => p.id === pid);
+if (!proj) return;
+proj.co2_offset += qty;
+purchasedOffsets += qty;
+DB.rewards.history.unshift({ desc: `Carbon offset: ${proj.name}`, amt: -Math.min(cost/10, DB.rewards.balance), date: 'Just now' });
+DB.rewards.balance = Math.max(0, DB.rewards.balance - Math.floor(cost/100));
+$('qty-'+pid).value = '';
+renderMarket(); renderOverview();
+toast(`🌳 ${qty} kg CO₂ offset via ${proj.name}!`);
+launchConfetti();
+}
+
+// ══════════════════════════════════════
+// ESG REPORT
+// ══════════════════════════════════════
+function renderESG() {
+const txs = DB.txs;
+const total = txs.reduce((a,t)=>a+t.co2,0);
+const elecCO2 = DB.utilities.reduce((a,u)=>a+u.elecKwh*ELEC_F,0);
+const waterCO2 = DB.utilities.reduce((a,u)=>a+u.waterKl*WATER_F,0);
+const grandTotal = total + elecCO2 + waterCO2;
+const score = Math.max(0,Math.min(100,Math.round(100-grandTotal/6)));
+const grade_esg = score>85?'A+':score>75?'A':score>65?'B+':score>55?'B':'C';
+const gradeColor = grade_esg.startsWith('A')?'#22c55e':grade_esg.startsWith('B')?'#f59e0b':'#ef4444';
+const user = DB.currentUser || { name: 'Citizen', id: 'N/A' };
+const s1 = elecCO2;
+const s2 = waterCO2;
+const s3 = total;
+const cats = {};
+txs.forEach(t => { cats[t.cat] = (cats[t.cat]||0) + t.co2; });
+
+$('esg-body').innerHTML = `
+<!-- REPORT HEADER -->
+<div class="card card-g" style="margin-bottom:11px;padding:18px;text-align:center">
+<div style="font-size:10px;color:var(--dim);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px">Climfra ESG Carbon Report</div>
+<div style="font-size:22px;font-weight:800;letter-spacing:-1px;margin-bottom:2px">${user.name}</div>
+<div style="font-family:'JetBrains Mono';font-size:10px;color:var(--dim);margin-bottom:12px">${user.id} · March 2026</div>
+<div style="display:flex;justify-content:center;gap:24px">
+<div><div style="font-size:30px;font-weight:800;color:${gradeColor}">${grade_esg}</div><div style="font-size:9px;color:var(--dim)">ESG GRADE</div></div>
+<div><div style="font-size:30px;font-weight:800;color:var(--accent)">${score}</div><div style="font-size:9px;color:var(--dim)">HEALTH SCORE</div></div>
+<div><div style="font-size:30px;font-weight:800;color:var(--warn)">${grandTotal.toFixed(0)}</div><div style="font-size:9px;color:var(--dim)">kg CO₂</div></div>
+</div>
+</div>
+
+<!-- SCOPE BREAKDOWN -->
+<div class="card" style="margin-bottom:11px;padding:16px">
+<div style="font-weight:700;font-size:13px;margin-bottom:12px">📊 GHG Scope Breakdown</div>
+${[
+{label:'Scope 1 — Direct (Stationary Energy)',val:s1,color:'#22c55e',note:'Electricity & fuel combustion'},
+{label:'Scope 2 — Indirect (Purchased Water)',val:s2,color:'#38bdf8',note:'Water supply & treatment'},
+{label:'Scope 3 — Value Chain (All Purchases)',val:s3,color:'#a78bfa',note:'Goods, services, travel'},
+].map(s => {
+const pct = grandTotal>0 ? Math.round(s.val/grandTotal*100) : 0;
+return `<div style="margin-bottom:11px">
+<div style="display:flex;justify-content:space-between;margin-bottom:4px">
+<div><div style="font-size:11px;font-weight:700">${s.label}</div><div style="font-size:9px;color:var(--dim)">${s.note}</div></div>
+<div style="text-align:right;flex-shrink:0;margin-left:8px"><div style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:${s.color}">${s.val.toFixed(1)} kg</div><div style="font-size:9px;color:var(--dim)">${pct}%</div></div>
+</div>
+<div style="background:rgba(255,255,255,.05);border-radius:3px;height:5px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${s.color};border-radius:3px;transition:width .7s"></div></div>
+</div>`;
+}).join('')}
+</div>
+
+<!-- CATEGORY TABLE -->
+<div class="card" style="margin-bottom:11px;padding:16px">
+<div style="font-weight:700;font-size:13px;margin-bottom:12px">📋 Category Detail</div>
+<table style="width:100%;border-collapse:collapse;font-size:11px">
+<thead><tr style="border-bottom:1px solid var(--border)">
+<th style="text-align:left;padding:0 0 7px;color:var(--dim);font-size:9px;text-transform:uppercase;letter-spacing:.06em">Category</th>
+<th style="text-align:right;padding:0 0 7px;color:var(--dim);font-size:9px;text-transform:uppercase;letter-spacing:.06em">CO₂ kg</th>
+<th style="text-align:right;padding:0 0 7px;color:var(--dim);font-size:9px;text-transform:uppercase;letter-spacing:.06em">Grade</th>
+<th style="text-align:right;padding:0 0 7px;color:var(--dim);font-size:9px;text-transform:uppercase;letter-spacing:.06em">Scope</th>
+</tr></thead>
+<tbody>
+${Object.entries(cats).map(([cat,co2]) => {
+const g = grade(co2);
+const gc = g==='A'?'#22c55e':g==='B'?'#f59e0b':'#ef4444';
+const ico = (CAT_META[cat]||{ico:'📄'}).ico;
+return `<tr style="border-top:1px solid rgba(255,255,255,.04)">
+<td style="padding:7px 0">${ico} ${cat.charAt(0).toUpperCase()+cat.slice(1)}</td>
+<td style="text-align:right;font-family:'JetBrains Mono';font-weight:700;color:var(--warn)">${co2.toFixed(1)}</td>
+<td style="text-align:right"><span style="color:${gc};font-weight:700">Grade ${g}</span></td>
+<td style="text-align:right;color:var(--purple);font-size:9px">Scope 3</td>
+</tr>`;
+}).join('')}
+<tr style="border-top:1px solid rgba(255,255,255,.04)">
+<td style="padding:7px 0">⚡ Electricity</td>
+<td style="text-align:right;font-family:'JetBrains Mono';font-weight:700;color:var(--warn)">${elecCO2.toFixed(1)}</td>
+<td style="text-align:right"><span style="color:${elecCO2<50?'#22c55e':'#f59e0b'};font-weight:700">Grade ${elecCO2<50?'A':'B'}</span></td>
+<td style="text-align:right;color:#22c55e;font-size:9px">Scope 1</td>
+</tr>
+<tr style="border-top:1px solid rgba(255,255,255,.04)">
+<td style="padding:7px 0">💧 Water</td>
+<td style="text-align:right;font-family:'JetBrains Mono';font-weight:700;color:var(--warn)">${waterCO2.toFixed(1)}</td>
+<td style="text-align:right"><span style="color:#22c55e;font-weight:700">Grade A</span></td>
+<td style="text-align:right;color:#38bdf8;font-size:9px">Scope 2</td>
+</tr>
+<tr style="border-top:2px solid var(--border)">
+<td style="padding:7px 0;font-weight:700">TOTAL</td>
+<td style="text-align:right;font-family:'JetBrains Mono';font-weight:800;font-size:13px;color:var(--accent)">${grandTotal.toFixed(1)}</td>
+<td style="text-align:right;font-weight:700;color:${gradeColor}">${grade_esg}</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<!-- RECOMMENDATIONS -->
+<div class="card card-p" style="margin-bottom:11px;padding:16px">
+<div style="font-weight:700;font-size:13px;margin-bottom:11px">🎯 Auditor Recommendations</div>
+${[
+{icon:'🚌', text:'Shift 50% of ride-hailing to Metro/Bus — estimated saving: '+(cats.ride||0 > 5 ? Math.round((cats.ride||0)*0.7)+' kg' : '~5 kg')},
+{icon:'🌱', text:'Increase organic grocery share from current to 60% minimum — GHG Protocol recommends Scope 3 Cat. 1 reduction'},
+{icon:'⚡', text:`Install rooftop solar (3 kW system) — would cut your ${elecCO2.toFixed(0)} kg electricity footprint by ~70%`},
+{icon:'🌳', text:`Purchase ${Math.ceil(grandTotal/12)} certified carbon credits monthly to achieve net-zero trajectory`},
+{icon:'📊', text:'Set a Science-Based Target (SBT) — commit to 45% reduction by 2030 aligned with 1.5°C pathway'},
+].map(r=>`<div style="display:flex;gap:10px;margin-bottom:9px;padding-bottom:9px;border-bottom:1px solid rgba(255,255,255,.04)"><span style="font-size:16px;flex-shrink:0">${r.icon}</span><div style="font-size:11px;color:var(--dim);line-height:1.5">${r.text}</div></div>`).join('')}
+</div>
+
+<!-- DISCLOSURE STATEMENT -->
+<div class="card" style="margin-bottom:11px;padding:14px;border-color:rgba(245,158,11,.18)">
+<div style="font-size:10px;color:var(--warn);font-weight:700;margin-bottom:6px">⚠️ Disclosure & Methodology</div>
+<div style="font-size:10px;color:var(--dim);line-height:1.6">Emission factors sourced from IPCC AR6 (2021), CEA India Grid Emission Factor 2024 (0.82 kg CO₂e/kWh), and GHG Protocol Corporate Value Chain Standard. This report is a prototype and not a substitute for a SEBI-mandated BRSR audit. Values are activity-based estimates and have not been independently verified.</div>
+</div>
+
+<div style="text-align:center;padding:12px 0">
+<div style="font-size:9px;color:var(--dim)">Generated by Climfra ESG Engine · ${new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</div>
+<div style="font-size:9px;color:rgba(34,197,94,.5);margin-top:2px;font-family:'JetBrains Mono'">climfra.in · Report ID: ESG-${Date.now().toString(36).toUpperCase()}</div>
+</div>
+`;
+}
+
+function exportESG() {
+toast('📊 ESG Report ready — share or print from browser menu');
+window.print();
+}
+
+// ══ INIT ══
+DB.currentUser=DB.users[0];
+setWOpt('upi');
+renderLogForm();
+</script>
+
 </body>
 </html>
